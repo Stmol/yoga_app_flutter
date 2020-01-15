@@ -1,14 +1,15 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:my_yoga_fl/models/asana_model.dart';
 import 'package:my_yoga_fl/models/classroom_model.dart';
+import 'package:my_yoga_fl/stores/asanas_store.dart';
 import 'package:my_yoga_fl/widgets/asanas_list.dart';
+import 'package:provider/provider.dart';
 
 class ClassroomScreen extends StatelessWidget {
-  final ClassroomModel classroomModel;
+  final ClassroomModel classroom;
 
-  const ClassroomScreen({Key key, @required this.classroomModel}) : super(key: key);
+  const ClassroomScreen({Key key, @required this.classroom}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -26,19 +27,19 @@ class ClassroomScreen extends StatelessWidget {
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
-          classroomModel.title,
+          classroom.title,
           style: Theme.of(context).textTheme.title,
         ),
       ),
-      body: _ClassroomScreen(classroomModel: classroomModel),
+      body: _ClassroomScreen(classroom: classroom),
     );
   }
 }
 
 class _ClassroomScreen extends StatelessWidget {
-  final ClassroomModel classroomModel;
+  final ClassroomModel classroom;
 
-  const _ClassroomScreen({Key key, @required this.classroomModel}) : super(key: key);
+  const _ClassroomScreen({Key key, @required this.classroom}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -63,11 +64,11 @@ class _ClassroomScreen extends StatelessWidget {
             child: Icon(Icons.image, color: Colors.grey[600], size: 32),
           ),
           SizedBox(height: 20),
-          (classroomModel.description != null && classroomModel.description.isNotEmpty)
+          (classroom.description != null && classroom.description.isNotEmpty)
               ? Column(
                   children: <Widget>[
                     Text(
-                      classroomModel.description,
+                      classroom.description,
                       style: TextStyle(fontSize: 18, color: Colors.blueGrey),
                     ),
                     SizedBox(height: 25),
@@ -93,7 +94,10 @@ class _ClassroomScreen extends StatelessWidget {
             ),
           ),
           SizedBox(height: 25),
-          AsanasList(asanas: classroomModel.asanas),
+          Consumer<AsanasStore>(builder: (_, store, __) {
+            final asanas = store.getAsanasForClassroom(classroom);
+            return AsanasList(asanas: asanas);
+          }),
         ],
       ),
     );

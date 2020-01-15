@@ -3,48 +3,63 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:my_yoga_fl/screens/asanas_screen.dart';
 import 'package:my_yoga_fl/screens/classrooms_screen.dart';
+import 'package:my_yoga_fl/stores/asanas_store.dart';
+import 'package:my_yoga_fl/stores/classrooms_store.dart';
 import 'package:my_yoga_fl/widgets/button.dart';
+import 'package:provider/provider.dart';
 
-void main() => runApp(MyApp());
+ void main() => runApp(MyApp());
 
-const kBrandColor = Color.fromRGBO(107, 117, 255, 1);
+ const kBrandColor = Color.fromRGBO(107, 117, 255, 1);
 const kBrandColorButtonBG = Color.fromRGBO(107, 117, 255, 0.16);
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'My Yoga App',
-      debugShowCheckedModeBanner: false,
-      initialRoute: MyHomePage.routeName,
-      routes: {
-        MyHomePage.routeName: (context) => MyHomePage(title: 'My Yoga'),
-        ClassroomsScreen.routeName: (context) => ClassroomsScreen(),
-        AsanasScreen.routeName: (context) => AsanasScreen(),
-      },
-      theme: ThemeData(
-        primarySwatch: Colors.purple,
-        textTheme: TextTheme(
-          title: GoogleFonts.pTSansCaption(
-            textStyle: TextStyle(
-              color: Colors.black,
-              fontWeight: FontWeight.bold,
-              fontSize: 36,
+    return MultiProvider(
+      providers: [
+        Provider<AsanasStore>(
+          create: (_) => AsanasStore()..initAsanas(),
+          lazy: false,
+        ),
+        Provider<ClassroomsStore>(
+          create: (_) => ClassroomsStore()..initClassrooms(),
+          lazy: false,
+        )
+      ],
+      child: MaterialApp(
+        title: 'My Yoga App',
+        debugShowCheckedModeBanner: false,
+        initialRoute: MyHomePage.routeName,
+        routes: {
+          MyHomePage.routeName: (context) => MyHomePage(title: 'My Yoga'),
+          ClassroomsScreen.routeName: (context) => ClassroomsScreen(),
+          AsanasScreen.routeName: (context) => AsanasScreen(),
+        },
+        theme: ThemeData(
+          primarySwatch: Colors.purple,
+          textTheme: TextTheme(
+            title: GoogleFonts.pTSansCaption(
+              textStyle: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+                fontSize: 36,
+              ),
             ),
-          ),
-          button: TextStyle(color: kBrandColor, fontSize: 18),
-          caption: GoogleFonts.pTSansCaption(
-            textStyle: TextStyle(
-              color: Colors.black,
-              fontWeight: FontWeight.bold,
-              fontSize: 20,
+            button: TextStyle(color: kBrandColor, fontSize: 18),
+            caption: GoogleFonts.pTSansCaption(
+              textStyle: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+              ),
             ),
-          ),
-          body2: GoogleFonts.pTSansNarrow(
-            textStyle: TextStyle(
-              color: Colors.black,
-              fontSize: 18,
+            body2: GoogleFonts.pTSansNarrow(
+              textStyle: TextStyle(
+                color: Colors.black,
+                fontSize: 18,
+              ),
             ),
           ),
         ),

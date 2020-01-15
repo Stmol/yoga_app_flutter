@@ -1,11 +1,15 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:my_yoga_fl/models/classroom_model.dart';
 import 'package:my_yoga_fl/screens/classroom_screen.dart';
 import 'package:my_yoga_fl/screens/new_classroom_screen.dart';
+import 'package:my_yoga_fl/stores/classrooms_store.dart';
 import 'package:my_yoga_fl/widgets/button.dart';
 import 'package:my_yoga_fl/widgets/search_field.dart';
-import 'package:my_yoga_fl/models/classroom_model.dart';
+import 'package:provider/provider.dart';
 
 class ClassroomsScreen extends StatelessWidget {
   static const routeName = '/classes';
@@ -38,23 +42,15 @@ class ClassroomsScreen extends StatelessWidget {
 class _ClassroomsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 20, right: 20, top: 18),
-      child: Column(
-        children: <Widget>[
-          SearchField(),
-          SizedBox(height: 15),
-          Expanded(
-            child: ListView(
-              children: <Widget>[
-                _PredefinedClassesList(),
-                SizedBox(height: 15),
-                _ActiveClassesList(),
-              ],
-            ),
-          ),
-        ],
-      ),
+    return ListView(
+      padding: const EdgeInsets.all(20),
+      children: <Widget>[
+        SearchField(),
+        SizedBox(height: 15),
+        _PredefinedClassesList(),
+        SizedBox(height: 15),
+        _ActiveClassesList(),
+      ],
     );
   }
 }
@@ -90,35 +86,41 @@ class _PredefinedClassesList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var classroom = classrooms[0];
-
     return Container(
       height: 150,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        physics: BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+      child: Consumer<ClassroomsStore>(
+        builder: (_, store, __) {
+          return Observer(
+            builder: (_) {
+              if (store.predefinedClassrooms.isEmpty) {
+                return Container(); // TODO: Empty list
+              }
 
-        itemBuilder: (context, index) {
-          if (index >= classrooms.length) {
-            return null;
-          }
+              return ListView.builder(
+                itemCount: store.predefinedClassrooms.length,
+                scrollDirection: Axis.horizontal,
+                physics: BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+                itemBuilder: (context, index) {
+                  final classroom = store.predefinedClassrooms[index];
 
-          var classroom = classrooms[index];
-
-          return Row(
-            children: <Widget>[
-              GestureDetector(
-                child: _getListItem(classroom.title, classroom.color),
-                onTap: () {
-                  Navigator.push(context, MaterialPageRoute(
-                    builder: (context) {
-                      return ClassroomScreen(classroomModel: classroom);
-                    },
-                  ));
+                  return Row(
+                    children: <Widget>[
+                      GestureDetector(
+                        child: _getListItem(classroom.title, Colors.amber[200]),
+                        onTap: () {
+                          Navigator.push(context, MaterialPageRoute(
+                            builder: (context) {
+                              return ClassroomScreen(classroom: classroom);
+                            },
+                          ));
+                        },
+                      ),
+                      SizedBox(width: 20),
+                    ],
+                  );
                 },
-              ),
-              SizedBox(width: 20),
-            ],
+              );
+            },
           );
         },
       ),
@@ -127,26 +129,118 @@ class _PredefinedClassesList extends StatelessWidget {
 }
 
 class _ActiveClassesList extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
+  Widget _classroomListItem(ClassroomModel classroom, BuildContext context) {
     return Container(
-      child: Button(
-        title: "Создать свой класс",
-        onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) {
-            return NewClassroomScreen();
-          }));
-        },
+//      margin: EdgeInsets.only(bottom: 10),
+      padding: EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.grey[200], width: 2),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          Container(
+            width: 60,
+            height: 60,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(4),
+              color: Colors.grey[200],
+            ),
+          ),
+          SizedBox(width: 6),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text(
+                classroom.title,
+                style: Theme.of(context).textTheme.caption,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              Text(
+                "0 асан",
+                maxLines: 1,
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontSize: 14,
+                ),
+              )
+            ],
+          ),
+        ],
       ),
     );
-    // return ListView(
-    //   physics: NeverScrollableScrollPhysics(),
-    //   children: <Widget>[
-    //     Button(
-    //       title: "Создать свой класс",
-    //       onPressed: () {},
-    //     )
-    //   ],
-    // );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: <Widget>[
+        Consumer<ClassroomsStore>(
+          builder: (_, store, __) {
+            return Observer(
+              builder: (_) => ListView.builder(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                itemCount: store.usersClassrooms.length,
+                itemBuilder: (_, index) {
+                  final classroom = store.usersClassrooms[index]; // FIXME: Possible out of a range
+
+                  return GestureDetector(
+                    child: Container(
+                      padding: EdgeInsets.only(bottom: 10),
+                      child: Dismissible(
+                        key: UniqueKey(),
+                        direction: DismissDirection.endToStart,
+                        onDismissed: (_) {
+                          // TODO: Add confirmDismiss with popup
+                          store.deleteClassroom(classroom);
+                        },
+                        background: Container(
+                          padding: EdgeInsets.only(right: 20),
+                          margin: EdgeInsets.symmetric(vertical: 8),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.only(
+                              topRight: Radius.circular(8),
+                              bottomRight: Radius.circular(8),
+                            ),
+                            color: Colors.red[200],
+                          ),
+                          child: Align(
+                            alignment: Alignment.centerRight,
+                            child: Icon(Icons.delete, color: Colors.white),
+                          ),
+                        ),
+                        child: _classroomListItem(classroom, context),
+                      ),
+                    ),
+                    onTap: () {
+                      Navigator.push(context, MaterialPageRoute(
+                        builder: (context) {
+                          return ClassroomScreen(classroom: classroom);
+                        },
+                      ));
+                    },
+                  );
+                },
+              ),
+            );
+          },
+        ),
+        SizedBox(height: 10),
+        Container(
+          width: double.infinity,
+          child: Button(
+            title: "Создать свой класс",
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) {
+                return NewClassroomScreen();
+              }));
+            },
+          ),
+        ),
+      ],
+    );
   }
 }

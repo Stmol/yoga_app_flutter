@@ -1,9 +1,9 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:my_yoga_fl/screens/asana_screen.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:my_yoga_fl/stores/asanas_store.dart';
 import 'package:my_yoga_fl/widgets/asanas_list.dart';
-import '../models/asana_model.dart';
+import 'package:my_yoga_fl/widgets/search_field.dart';
+import 'package:provider/provider.dart';
 
 class AsanasScreen extends StatelessWidget {
   static const routeName = '/asanas';
@@ -36,60 +36,20 @@ class AsanasScreen extends StatelessWidget {
 class _AsanasScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+
     return Padding(
       padding: const EdgeInsets.only(left: 20, right: 20, top: 18),
       child: Column(
-        // mainAxisAlignment: MainAxisAlignment.start,
         children: <Widget>[
-          SearchAsanasForm(),
+          SearchField(),
           SizedBox(height: 15),
-          AsanasList(asanas: asanas),
+          Consumer<AsanasStore>(builder: (_, store, __) {
+            return Observer(builder: (_) {
+              return AsanasList(asanas: store.asanas);
+            });
+          }),
         ],
       ),
-    );
-  }
-}
-
-class SearchAsanasForm extends StatelessWidget {
-  InputDecoration _getInputDecoration() {
-    return InputDecoration(
-      hintText: "Поиск",
-      // border: OutlineInputBorder(
-      //   borderRadius: BorderRadius.circular(40),
-      //   borderSide: BorderSide(width: 1, color: Colors.transparent)
-      // ),
-      filled: false,
-      fillColor: Colors.grey[200],
-      // focusColor: Colors.white,
-      // hoverColor: Colors.white,
-      isDense: true,
-      contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-      enabledBorder: InputBorder.none,
-      focusedBorder: InputBorder.none,
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: <Widget>[
-        Expanded(
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(45),
-              color: Colors.grey[100],
-            ),
-            child: TextField(
-              cursorColor: Colors.grey,
-              decoration: _getInputDecoration(),
-            ),
-          ),
-        ),
-        IconButton(
-          icon: Icon(Icons.filter_list),
-          onPressed: () => {},
-        ),
-      ],
     );
   }
 }

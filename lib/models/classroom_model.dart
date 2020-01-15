@@ -1,8 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:my_yoga_fl/models/asana_model.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:uuid/uuid.dart';
 
+part 'classroom_model.g.dart';
+
+@JsonSerializable()
 class ClassroomModel {
   final String id;
   final String title;
@@ -10,113 +13,42 @@ class ClassroomModel {
   final String coverImage;
   final int timeBetweenAsanas;
   final bool isPredefined;
-  final List<AsanaModel> asanas;
-  final Color color; // TODO: Remove property
+  final List<String> asanasUniqueNames;
 
   ClassroomModel({
     @required this.title,
     this.description,
     this.coverImage,
-    this.asanas,
-    this.color,
+    List<String> asanasUniqueNames,
     this.timeBetweenAsanas = 300,
     this.isPredefined = false,
-  }) : id = Uuid().v4();
-}
+  })  : id = Uuid().v4(),
+        asanasUniqueNames = asanasUniqueNames ?? <String>[];
 
-var classrooms = [
-  ClassroomModel(
-    title: "Медитация",
-    description:
-        "Этот класс содержит всего одну асану, позу \"лотуса\" для практики медитации в неподвижном состоянии",
-    coverImage: null,
-    timeBetweenAsanas: 300,
-    isPredefined: true,
-    asanas: [
-      AsanaModel(
-        title: "Лотус",
-        level: 2,
-        imageUrl: null,
-        description:
-            "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga",
-        warnings:
-            "- At vero eos et accusamus et iusto odio \n- Dignissimos ducimus qui blanditiis praesentium voluptatum \n- Deleniti atque corrupti quos dolores",
-      ),
-    ],
-    color: Colors.blueAccent[100],
-  ),
-  ClassroomModel(
-    title: "Для бодрости",
-    description: "Рекомендуем выполнять утром после пробуждения",
-    coverImage: null,
-    timeBetweenAsanas: 300,
-    isPredefined: true,
-    asanas: [
-      AsanaModel(
-        title: "Планка",
-        level: 6.5,
-        imageUrl: null,
-        description:
-            "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga",
-        warnings:
-            "- At vero eos et accusamus et iusto odio \n- Dignissimos ducimus qui blanditiis praesentium voluptatum \n- Deleniti atque corrupti quos dolores",
-      ),
-      AsanaModel(
-        title: "Поза воина (правая сторона) пример пример пример пример",
-        level: 3,
-        imageUrl: null,
-        description:
-            "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga",
-        warnings:
-            "- At vero eos et accusamus et iusto odio \n- Dignissimos ducimus qui blanditiis praesentium voluptatum \n- Deleniti atque corrupti quos dolores",
-      ),
-      AsanaModel(
-        title: "Воин 1 (левая сторона)",
-        level: 6,
-        imageUrl: null,
-        description:
-            "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga",
-        warnings:
-            "- At vero eos et accusamus et iusto odio \n- Dignissimos ducimus qui blanditiis praesentium voluptatum \n- Deleniti atque corrupti quos dolores",
-      ),
-    ],
-    color: Colors.pinkAccent[100],
-  ),
-  ClassroomModel(
-    title: "Для молодых мам",
-    description: "",
-    coverImage: null,
-    timeBetweenAsanas: 300,
-    isPredefined: true,
-    asanas: [
-      AsanaModel(
-        title: "Планка",
-        level: 6.5,
-        imageUrl: null,
-        description:
-            "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga",
-        warnings:
-            "- At vero eos et accusamus et iusto odio \n- Dignissimos ducimus qui blanditiis praesentium voluptatum \n- Deleniti atque corrupti quos dolores",
-      ),
-      AsanaModel(
-        title: "Поза воина (правая сторона) пример пример пример пример",
-        level: 3,
-        imageUrl: null,
-        description:
-            "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga",
-        warnings:
-            "- At vero eos et accusamus et iusto odio \n- Dignissimos ducimus qui blanditiis praesentium voluptatum \n- Deleniti atque corrupti quos dolores",
-      ),
-      AsanaModel(
-        title: "Воин 1 (левая сторона)",
-        level: 6,
-        imageUrl: null,
-        description:
-            "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga",
-        warnings:
-            "- At vero eos et accusamus et iusto odio \n- Dignissimos ducimus qui blanditiis praesentium voluptatum \n- Deleniti atque corrupti quos dolores",
-      ),
-    ],
-    color: Colors.orangeAccent[100],
-  ),
-];
+  factory ClassroomModel.fromJSON(Map<String, dynamic> json) => _$ClassroomModelFromJson(json);
+
+  Map<String, dynamic> toJSON() => _$ClassroomModelToJson(this);
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ClassroomModel &&
+          runtimeType == other.runtimeType &&
+          id == other.id &&
+          title == other.title &&
+          description == other.description &&
+          coverImage == other.coverImage &&
+          timeBetweenAsanas == other.timeBetweenAsanas &&
+          isPredefined == other.isPredefined &&
+          asanasUniqueNames == other.asanasUniqueNames;
+
+  @override
+  int get hashCode =>
+      id.hashCode ^
+      title.hashCode ^
+      description.hashCode ^
+      coverImage.hashCode ^
+      timeBetweenAsanas.hashCode ^
+      isPredefined.hashCode ^
+      asanasUniqueNames.hashCode;
+}

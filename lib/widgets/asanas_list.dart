@@ -10,6 +10,10 @@ class AsanasList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (asanas.isEmpty) {
+      return Container(); // TODO: Empty list
+    }
+
     return Expanded(
       child: Container(
         child: ListView.builder(

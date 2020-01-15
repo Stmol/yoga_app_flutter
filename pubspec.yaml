@@ -25,12 +25,23 @@ dependencies:
   cupertino_icons: ^0.1.2
   google_fonts:
   shared_preferences: ^0.5.6
+  json_annotation:
   provider: ^4.0.1
+  rxdart: ^0.23.1
   uuid: ^2.0.4
+  mobx:
+  flutter_mobx:
+  intl: ^0.16.1
+  built_collection: ^4.3.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
+  build_runner:
+  json_serializable:
+  mobx_codegen:
+  logger: ^0.8.2
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -44,9 +55,9 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/images/yoga-bg-1.jpeg
-    - assets/images/asana_screen.png
-  #  - images/a_dot_ham.jpeg
+    - assets/images/
+    - assets/data/asanas.json
+    - assets/data/classrooms.json
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

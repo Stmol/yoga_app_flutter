@@ -1,48 +1,41 @@
+import 'package:json_annotation/json_annotation.dart';
+
+part 'asana_model.g.dart';
+
+@JsonSerializable()
 class AsanaModel {
-  final String imageUrl;
   final String title;
+  final String uniqueName;
+  final String imageUrl;
   final double level;
   final String description;
   final String warnings;
 
-  AsanaModel({this.imageUrl, this.title, this.level, this.description, this.warnings});
-}
+  AsanaModel(
+      {this.uniqueName, this.imageUrl, this.title, this.level, this.description, this.warnings});
 
-var asanas = [
-  AsanaModel(
-    title: "Собакен мордой вниз",
-    level: 4.5,
-    imageUrl: null,
-    description:
-        "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga",
-    warnings:
-        "- At vero eos et accusamus et iusto odio \n- Dignissimos ducimus qui blanditiis praesentium voluptatum \n- Deleniti atque corrupti quos dolores",
-  ),
-  AsanaModel(
-    title: "Планка",
-    level: 6.5,
-    imageUrl: null,
-    description:
-        "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga",
-    warnings:
-        "- At vero eos et accusamus et iusto odio \n- Dignissimos ducimus qui blanditiis praesentium voluptatum \n- Deleniti atque corrupti quos dolores",
-  ),
-  AsanaModel(
-    title: "Поза воина (правая сторона) пример пример пример пример",
-    level: 3,
-    imageUrl: null,
-    description:
-        "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga",
-    warnings:
-        "- At vero eos et accusamus et iusto odio \n- Dignissimos ducimus qui blanditiis praesentium voluptatum \n- Deleniti atque corrupti quos dolores",
-  ),
-  AsanaModel(
-    title: "Воин 1 (левая сторона)",
-    level: 6,
-    imageUrl: null,
-    description:
-        "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga",
-    warnings:
-        "- At vero eos et accusamus et iusto odio \n- Dignissimos ducimus qui blanditiis praesentium voluptatum \n- Deleniti atque corrupti quos dolores",
-  ),
-];
+  factory AsanaModel.fromJson(Map<String, dynamic> json) => _$AsanaModelFromJson(json);
+
+  Map<String, dynamic> toJson() => _$AsanaModelToJson(this);
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AsanaModel &&
+          runtimeType == other.runtimeType &&
+          title == other.title &&
+          uniqueName == other.uniqueName &&
+          imageUrl == other.imageUrl &&
+          level == other.level &&
+          description == other.description &&
+          warnings == other.warnings;
+
+  @override
+  int get hashCode =>
+      title.hashCode ^
+      uniqueName.hashCode ^
+      imageUrl.hashCode ^
+      level.hashCode ^
+      description.hashCode ^
+      warnings.hashCode;
+}
