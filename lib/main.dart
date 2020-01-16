@@ -1,20 +1,36 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:my_yoga_fl/repository/classroom_repository.dart';
 import 'package:my_yoga_fl/screens/asanas_screen.dart';
 import 'package:my_yoga_fl/screens/classrooms_screen.dart';
 import 'package:my_yoga_fl/stores/asanas_store.dart';
 import 'package:my_yoga_fl/stores/classrooms_store.dart';
+import 'package:my_yoga_fl/utils/log.dart';
 import 'package:my_yoga_fl/widgets/button.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
- void main() => runApp(MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized(); // TODO: What the heck?
+
+  // TODO: Find to best place for init SP
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  Log.init();
+
+  runApp(MyApp(sharedPreferences: prefs));
+}
 
 const kBrandColor = Color.fromRGBO(107, 117, 255, 1);
 const kBrandColorButtonBG = Color.fromRGBO(107, 117, 255, 0.16);
 
+const kClassroomKeyValueRepositoryKeyName = 'classrooms';
+
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
+  final SharedPreferences sharedPreferences;
+
+  MyApp({Key key, @required this.sharedPreferences}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
@@ -24,7 +40,13 @@ class MyApp extends StatelessWidget {
           lazy: false,
         ),
         Provider<ClassroomsStore>(
-          create: (_) => ClassroomsStore()..initClassrooms(),
+          create: (_) {
+            final repository =
+                ClassroomKeyValueRepository(kClassroomKeyValueRepositoryKeyName, sharedPreferences);
+
+            return ClassroomsStore(repository)..init();
+          },
+          dispose: (_, store) => store.dispose(),
           lazy: false,
         )
       ],

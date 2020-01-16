@@ -40,11 +40,11 @@ mixin _$ClassroomsStore on ClassroomsStoreBase, Store {
     }, _$_classroomsAtom, name: '${_$_classroomsAtom.name}_set');
   }
 
-  final _$initClassroomsAsyncAction = AsyncAction('initClassrooms');
+  final _$initAsyncAction = AsyncAction('init');
 
   @override
-  Future<void> initClassrooms() {
-    return _$initClassroomsAsyncAction.run(() => super.initClassrooms());
+  Future<void> init() {
+    return _$initAsyncAction.run(() => super.init());
   }
 
   final _$ClassroomsStoreBaseActionController =

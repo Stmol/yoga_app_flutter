@@ -4,6 +4,7 @@ import 'package:mobx/mobx.dart';
 import 'package:my_yoga_fl/models/asana_model.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:my_yoga_fl/models/classroom_model.dart';
+import 'package:my_yoga_fl/utils/log.dart';
 
 part 'asanas_store.g.dart';
 
@@ -15,7 +16,7 @@ abstract class AsanasStoreBase with Store {
 
   @action
   Future<void> initAsanas() async {
-    print('init asanas');
+    Log.debug('Init asanas');
     await _loadAsanasFromJSON().then((a) => asanas.addAll(a));
   }
 
