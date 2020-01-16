@@ -1,11 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:my_yoga_fl/models/classroom_model.dart';
+import 'package:my_yoga_fl/screens/classrooms_screen.dart';
 import 'package:my_yoga_fl/stores/classrooms_store.dart';
+import 'package:my_yoga_fl/stores/new_classroom_store.dart';
 import 'package:my_yoga_fl/widgets/button.dart';
 import 'package:provider/provider.dart';
 
-class NewClassroomScreen extends StatelessWidget {
+class NewClassroomStep2Screen extends StatelessWidget {
+  final NewClassroomStore newClassroomStore;
+
+  const NewClassroomStep2Screen({
+    Key key,
+    @required this.newClassroomStore,
+  }) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,12 +35,19 @@ class NewClassroomScreen extends StatelessWidget {
           style: Theme.of(context).textTheme.title,
         ),
       ),
-      body: _NewClassroomScreen(),
+      body: _NewClassroomStep2Content(newClassroomStore: newClassroomStore),
     );
   }
 }
 
-class _NewClassroomScreen extends StatelessWidget {
+class _NewClassroomStep2Content extends StatelessWidget {
+  final NewClassroomStore newClassroomStore;
+
+  const _NewClassroomStep2Content({
+    Key key,
+    @required this.newClassroomStore,
+  }) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return ListView(
@@ -60,8 +76,12 @@ class _NewClassroomScreen extends StatelessWidget {
         Consumer<ClassroomsStore>(
           builder: (_, store, __) {
             return NewClassroomForm(onSave: (ClassroomModel classroom) {
+              newClassroomStore.addSelectedAsanasToClassroom(classroom);
               store.addClassroom(classroom);
-              Navigator.of(context).pop();
+
+              // TODO Check this method to pop out from modal
+              Navigator.popUntil(context, ModalRoute.withName(ClassroomsScreen.routeName));
+              //int count = 0; Navigator.popUntil(context, (_) => count++ >= 2);
             });
           },
         ),
@@ -104,7 +124,7 @@ class _NewClassroomFormState extends State<NewClassroomForm> {
   }
 
   int _formatTimeIntervalToSeconds(String text) {
-    final List<String> parts = text.split(":");
+    final List<String> parts = text.split(":"); // FIXME Out of a range
     final duration = Duration(minutes: int.parse(parts[0]), seconds: int.parse(parts[1]));
 
     return duration.inSeconds;

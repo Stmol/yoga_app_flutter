@@ -10,7 +10,7 @@ import 'package:provider/provider.dart';
 
  void main() => runApp(MyApp());
 
- const kBrandColor = Color.fromRGBO(107, 117, 255, 1);
+const kBrandColor = Color.fromRGBO(107, 117, 255, 1);
 const kBrandColorButtonBG = Color.fromRGBO(107, 117, 255, 0.16);
 
 class MyApp extends StatelessWidget {

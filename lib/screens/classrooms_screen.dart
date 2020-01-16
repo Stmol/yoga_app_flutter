@@ -1,11 +1,10 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:my_yoga_fl/models/classroom_model.dart';
 import 'package:my_yoga_fl/screens/classroom_screen.dart';
-import 'package:my_yoga_fl/screens/new_classroom_screen.dart';
+import 'package:my_yoga_fl/screens/new_classroom/step_1.dart';
 import 'package:my_yoga_fl/stores/classrooms_store.dart';
 import 'package:my_yoga_fl/widgets/button.dart';
 import 'package:my_yoga_fl/widgets/search_field.dart';
@@ -131,7 +130,6 @@ class _PredefinedClassesList extends StatelessWidget {
 class _ActiveClassesList extends StatelessWidget {
   Widget _classroomListItem(ClassroomModel classroom, BuildContext context) {
     return Container(
-//      margin: EdgeInsets.only(bottom: 10),
       padding: EdgeInsets.all(8),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
@@ -159,7 +157,7 @@ class _ActiveClassesList extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
               Text(
-                "0 асан",
+                "${classroom.asanasUniqueNames.length} асан",
                 maxLines: 1,
                 style: TextStyle(
                   color: Colors.grey,
@@ -234,9 +232,15 @@ class _ActiveClassesList extends StatelessWidget {
           child: Button(
             title: "Создать свой класс",
             onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) {
-                return NewClassroomScreen();
-              }));
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) {
+                    return NewClassroomStep1Screen();
+                  },
+                  fullscreenDialog: true,
+                ),
+              );
             },
           ),
         ),

@@ -16,32 +16,37 @@ class AsanasList extends StatelessWidget {
 
     return Expanded(
       child: Container(
-        child: ListView.builder(
-          // shrinkWrap: true,
-          // physics: BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-          itemCount: asanas.length,
-          itemBuilder: (context, index) {
-            var asana = asanas[index];
-
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 15),
-              child: GestureDetector(
-                child: AsanaListItem(
-                  title: asana.title,
-                  imageUrl: asana.imageUrl,
-                  level: asana.level,
-                ),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) {
-                      return AsanaScreen(asana);
-                    }),
-                  );
-                },
-              ),
-            );
+        child: NotificationListener<OverscrollIndicatorNotification>(
+          // TODO Check this method for disabling Android like scroll glow
+          onNotification: (OverscrollIndicatorNotification overscroll) {
+            overscroll.disallowGlow();
+            return true;
           },
+          child: ListView.builder(
+            itemCount: asanas.length,
+            itemBuilder: (context, index) {
+              var asana = asanas[index];
+
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 15),
+                child: GestureDetector(
+                  child: AsanaListItem(
+                    title: asana.title,
+                    imageUrl: asana.imageUrl,
+                    level: asana.level,
+                  ),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) {
+                        return AsanaScreen(asana);
+                      }),
+                    );
+                  },
+                ),
+              );
+            },
+          ),
         ),
       ),
     );
@@ -89,43 +94,48 @@ class AsanaListItem extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: <Widget>[
-                Container(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.baseline,
-                    textBaseline: TextBaseline.alphabetic,
-                    children: <Widget>[
-                      Flexible(
-                        child: Text(
-                          title,
-                          style: GoogleFonts.pTSans(
-                            textStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+                Flexible(
+                  flex: 2,
+                  child: Container(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.baseline,
+                      textBaseline: TextBaseline.alphabetic,
+                      children: <Widget>[
+                        Flexible(
+                          child: Text(
+                            title,
+                            style: GoogleFonts.pTSans(
+                              textStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          softWrap: false,
                         ),
-                      ),
-                      Container(
-                        child: Text(
-                          "$level",
-                          style: TextStyle(color: Colors.grey[500], fontWeight: FontWeight.bold),
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-                Container(
-                  child: Text(
-                    "для начинающих",
-                    style: TextStyle(
-                      color: Color.fromRGBO(13, 92, 210, 0.9),
+                        Container(
+                          child: Text(
+                            "$level",
+                            style: TextStyle(color: Colors.grey[500], fontWeight: FontWeight.bold),
+                          ),
+                        )
+                      ],
                     ),
                   ),
-                  padding: EdgeInsets.symmetric(horizontal: 5, vertical: 3),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(4),
-                    color: Color.fromRGBO(96, 159, 253, 0.3),
+                ),
+                Flexible(
+                  flex: 1,
+                  child: Container(
+                    child: Text(
+                      "для начинающих",
+                      style: TextStyle(
+                        color: Color.fromRGBO(13, 92, 210, 0.9),
+                      ),
+                    ),
+                    padding: EdgeInsets.symmetric(horizontal: 5, vertical: 3),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(4),
+                      color: Color.fromRGBO(96, 159, 253, 0.3),
+                    ),
                   ),
                 )
               ],

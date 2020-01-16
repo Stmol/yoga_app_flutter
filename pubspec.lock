@@ -98,7 +98,7 @@ packages:
       name: built_value
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "7.0.4"
+    version: "7.0.6"
   charcode:
     dependency: transitive
     description:
@@ -288,7 +288,7 @@ packages:
       name: logger
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.8.2"
+    version: "0.8.3"
   logging:
     dependency: transitive
     description:
