@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:my_yoga_fl/models/asana_model.dart';
 import 'package:my_yoga_fl/screens/asana_screen.dart';
 
+// TODO: Delete
 class AsanasList extends StatelessWidget {
   final List<AsanaModel> asanas;
 
@@ -57,8 +58,15 @@ class AsanaListItem extends StatelessWidget {
   final String title;
   final String imageUrl;
   final double level;
+  final Function onTap;
 
-  const AsanaListItem({Key key, this.title, this.imageUrl, this.level}) : super(key: key);
+  const AsanaListItem({
+    Key key,
+    @required this.title,
+    this.imageUrl,
+    this.level,
+    this.onTap,
+  }) : super(key: key);
 
   Widget _getImage() {
     return Container(
@@ -82,66 +90,69 @@ class AsanaListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 80,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          _getImage(),
-          SizedBox(width: 10),
-          Flexible(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                Flexible(
-                  flex: 2,
-                  child: Container(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.baseline,
-                      textBaseline: TextBaseline.alphabetic,
-                      children: <Widget>[
-                        Flexible(
-                          child: Text(
-                            title,
-                            style: GoogleFonts.pTSans(
-                              textStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 80,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            _getImage(),
+            SizedBox(width: 10),
+            Flexible(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  Flexible(
+                    flex: 2,
+                    child: Container(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.baseline,
+                        textBaseline: TextBaseline.alphabetic,
+                        children: <Widget>[
+                          Flexible(
+                            child: Text(
+                              title,
+                              style: GoogleFonts.pTSans(
+                                textStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
                           ),
-                        ),
-                        Container(
-                          child: Text(
-                            "$level",
-                            style: TextStyle(color: Colors.grey[500], fontWeight: FontWeight.bold),
-                          ),
-                        )
-                      ],
-                    ),
-                  ),
-                ),
-                Flexible(
-                  flex: 1,
-                  child: Container(
-                    child: Text(
-                      "для начинающих",
-                      style: TextStyle(
-                        color: Color.fromRGBO(13, 92, 210, 0.9),
+                          Container(
+                            child: Text(
+                              "$level",
+                              style: TextStyle(color: Colors.grey[500], fontWeight: FontWeight.bold),
+                            ),
+                          )
+                        ],
                       ),
                     ),
-                    padding: EdgeInsets.symmetric(horizontal: 5, vertical: 3),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(4),
-                      color: Color.fromRGBO(96, 159, 253, 0.3),
-                    ),
                   ),
-                )
-              ],
-            ),
-          )
-        ],
+                  Flexible(
+                    flex: 1,
+                    child: Container(
+                      child: Text(
+                        "для начинающих",
+                        style: TextStyle(
+                          color: Color.fromRGBO(13, 92, 210, 0.9),
+                        ),
+                      ),
+                      padding: EdgeInsets.symmetric(horizontal: 5, vertical: 3),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(4),
+                        color: Color.fromRGBO(96, 159, 253, 0.3),
+                      ),
+                    ),
+                  )
+                ],
+              ),
+            )
+          ],
+        ),
       ),
     );
   }

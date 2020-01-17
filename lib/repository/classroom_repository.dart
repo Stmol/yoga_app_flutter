@@ -26,6 +26,9 @@ class ClassroomKeyValueRepository implements AbstractClassroomRepository {
     Log.debug('Loading <Classrooms> from SP storage');
 
     final jsonEncodedString = sharedPreferences.getString(key);
+    if (jsonEncodedString.isEmpty) {
+      return null;
+    }
 
     try {
       final List<dynamic> jsonDecoded = json.decode(jsonEncodedString);

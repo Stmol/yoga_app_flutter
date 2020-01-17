@@ -147,24 +147,26 @@ class _ActiveClassesList extends StatelessWidget {
             ),
           ),
           SizedBox(width: 6),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text(
-                classroom.title,
-                style: Theme.of(context).textTheme.caption,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              Text(
-                "${classroom.asanasUniqueNames.length} асан",
-                maxLines: 1,
-                style: TextStyle(
-                  color: Colors.grey,
-                  fontSize: 14,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  classroom.title,
+                  style: Theme.of(context).textTheme.caption,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-              )
-            ],
+                Text(
+                  "${classroom.asanasUniqueNames.length} асан",
+                  maxLines: 1,
+                  style: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 14,
+                  ),
+                )
+              ],
+            ),
           ),
         ],
       ),
