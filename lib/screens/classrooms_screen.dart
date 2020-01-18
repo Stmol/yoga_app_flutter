@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mobx/mobx.dart';
 import 'package:my_yoga_fl/models/classroom_model.dart';
 import 'package:my_yoga_fl/screens/classroom_screen.dart';
 import 'package:my_yoga_fl/screens/new_classroom/step_1.dart';
 import 'package:my_yoga_fl/stores/classrooms_store.dart';
+import 'package:my_yoga_fl/stores/new_classroom_store.dart';
 import 'package:my_yoga_fl/widgets/button.dart';
 import 'package:my_yoga_fl/widgets/search_field.dart';
 import 'package:provider/provider.dart';
@@ -237,10 +239,18 @@ class _ActiveClassesList extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) {
-                    return NewClassroomStep1Screen();
-                  },
+                  // TODO: What about insane rebuilding widgets below?
                   fullscreenDialog: true,
+                  builder: (context) {
+                    final newClassroomStore = NewClassroomStore();
+
+                    when((_) => newClassroomStore.editableClassroom != null, () {
+                      Provider.of<ClassroomsStore>(context, listen: false)
+                          .addClassroom(newClassroomStore.editableClassroom);
+                    });
+
+                    return NewClassroomStep1Screen(newClassroomStore: newClassroomStore);
+                  },
                 ),
               );
             },

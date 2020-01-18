@@ -51,20 +51,30 @@ mixin _$ClassroomsStore on ClassroomsStoreBase, Store {
       ActionController(name: 'ClassroomsStoreBase');
 
   @override
-  void addClassroom(ClassroomModel model) {
+  void addClassroom(ClassroomModel classroom) {
     final _$actionInfo = _$ClassroomsStoreBaseActionController.startAction();
     try {
-      return super.addClassroom(model);
+      return super.addClassroom(classroom);
     } finally {
       _$ClassroomsStoreBaseActionController.endAction(_$actionInfo);
     }
   }
 
   @override
-  void deleteClassroom(ClassroomModel model) {
+  void updateClassroom(ClassroomModel classroom) {
     final _$actionInfo = _$ClassroomsStoreBaseActionController.startAction();
     try {
-      return super.deleteClassroom(model);
+      return super.updateClassroom(classroom);
+    } finally {
+      _$ClassroomsStoreBaseActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void deleteClassroom(ClassroomModel classroom) {
+    final _$actionInfo = _$ClassroomsStoreBaseActionController.startAction();
+    try {
+      return super.deleteClassroom(classroom);
     } finally {
       _$ClassroomsStoreBaseActionController.endAction(_$actionInfo);
     }

@@ -45,7 +45,8 @@ class _AsanasScreen extends StatelessWidget {
           SizedBox(height: 15),
           Consumer<AsanasStore>(builder: (_, store, __) {
             return Observer(builder: (_) {
-              return AsanasList(asanas: store.asanas);
+              // FIXME: toBuiltList()
+              return AsanasList(asanas: store.asanas.toList(growable: false));
             });
           }),
         ],

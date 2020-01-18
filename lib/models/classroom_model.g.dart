@@ -8,6 +8,7 @@ part of 'classroom_model.dart';
 
 ClassroomModel _$ClassroomModelFromJson(Map<String, dynamic> json) {
   return ClassroomModel(
+    id: json['id'] as String,
     title: json['title'] as String,
     description: json['description'] as String,
     coverImage: json['coverImage'] as String,
@@ -20,6 +21,7 @@ ClassroomModel _$ClassroomModelFromJson(Map<String, dynamic> json) {
 
 Map<String, dynamic> _$ClassroomModelToJson(ClassroomModel instance) =>
     <String, dynamic>{
+      'id': instance.id,
       'title': instance.title,
       'description': instance.description,
       'coverImage': instance.coverImage,

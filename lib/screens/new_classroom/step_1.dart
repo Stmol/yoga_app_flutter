@@ -7,9 +7,14 @@ import 'package:my_yoga_fl/stores/new_classroom_store.dart';
 import 'package:provider/provider.dart';
 
 class NewClassroomStep1Screen extends StatelessWidget {
-  static const TAB_BAR_LENGTH = 2;
+  static const TABS_COUNT = 2;
 
-  final NewClassroomStore newClassroomStore = NewClassroomStore();
+  final NewClassroomStore newClassroomStore;
+
+  const NewClassroomStep1Screen({
+    Key key,
+    @required this.newClassroomStore,
+  }) : super(key: key);
 
   void _nextStepButtonHandler(BuildContext context) {
     Navigator.push(context, MaterialPageRoute(builder: (_) {
@@ -20,7 +25,7 @@ class NewClassroomStep1Screen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: TAB_BAR_LENGTH,
+      length: TABS_COUNT,
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
@@ -88,20 +93,16 @@ class _AllAsanasListTabView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final asanasStore = Provider.of<AsanasStore>(context);
+    final asanasStore = Provider.of<AsanasStore>(context, listen: false);
 
-    return Observer(
-      builder: (_) {
-        return ListView.builder(
-          itemCount: asanasStore.asanas.length,
-          itemBuilder: (_, index) {
-            return Container(
-              child: _AsanaListItem(
-                asana: asanasStore.asanas[index],
-                newClassroomStore: newClassroomStore,
-              ),
-            );
-          },
+    return ListView.builder(
+      itemCount: asanasStore.asanas.length,
+      itemBuilder: (_, index) {
+        return Container(
+          child: _AsanaListItem(
+            asana: asanasStore.asanas[index],
+            newClassroomStore: newClassroomStore,
+          ),
         );
       },
     );

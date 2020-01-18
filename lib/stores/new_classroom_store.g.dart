@@ -16,6 +16,24 @@ mixin _$NewClassroomStore on _NewClassroomStoreBase, Store {
           Computed<int>(() => super.countOfSelectedAsanas))
       .value;
 
+  final _$editableClassroomAtom =
+      Atom(name: '_NewClassroomStoreBase.editableClassroom');
+
+  @override
+  ClassroomModel get editableClassroom {
+    _$editableClassroomAtom.context.enforceReadPolicy(_$editableClassroomAtom);
+    _$editableClassroomAtom.reportObserved();
+    return super.editableClassroom;
+  }
+
+  @override
+  set editableClassroom(ClassroomModel value) {
+    _$editableClassroomAtom.context.conditionallyRunInAction(() {
+      super.editableClassroom = value;
+      _$editableClassroomAtom.reportChanged();
+    }, _$editableClassroomAtom, name: '${_$editableClassroomAtom.name}_set');
+  }
+
   final _$selectedAsanasAtom =
       Atom(name: '_NewClassroomStoreBase.selectedAsanas');
 
@@ -52,6 +70,16 @@ mixin _$NewClassroomStore on _NewClassroomStoreBase, Store {
     final _$actionInfo = _$_NewClassroomStoreBaseActionController.startAction();
     try {
       return super.deselectAsana(asana);
+    } finally {
+      _$_NewClassroomStoreBaseActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void saveForm() {
+    final _$actionInfo = _$_NewClassroomStoreBaseActionController.startAction();
+    try {
+      return super.saveForm();
     } finally {
       _$_NewClassroomStoreBaseActionController.endAction(_$actionInfo);
     }

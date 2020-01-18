@@ -12,14 +12,14 @@ mixin _$AsanasStore on AsanasStoreBase, Store {
   final _$asanasAtom = Atom(name: 'AsanasStoreBase.asanas');
 
   @override
-  ObservableList<AsanaModel> get asanas {
+  BuiltList<AsanaModel> get asanas {
     _$asanasAtom.context.enforceReadPolicy(_$asanasAtom);
     _$asanasAtom.reportObserved();
     return super.asanas;
   }
 
   @override
-  set asanas(ObservableList<AsanaModel> value) {
+  set asanas(BuiltList<AsanaModel> value) {
     _$asanasAtom.context.conditionallyRunInAction(() {
       super.asanas = value;
       _$asanasAtom.reportChanged();

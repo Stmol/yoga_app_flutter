@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:my_yoga_fl/models/classroom_model.dart';
-import 'package:my_yoga_fl/screens/classrooms_screen.dart';
-import 'package:my_yoga_fl/stores/classrooms_store.dart';
 import 'package:my_yoga_fl/stores/new_classroom_store.dart';
 import 'package:my_yoga_fl/widgets/button.dart';
-import 'package:provider/provider.dart';
 
 class NewClassroomStep2Screen extends StatelessWidget {
   final NewClassroomStore newClassroomStore;
@@ -48,6 +44,23 @@ class _NewClassroomStep2Content extends StatelessWidget {
     @required this.newClassroomStore,
   }) : super(key: key);
 
+  ///
+  /// Handler Classroom saving action
+  ///
+  void _onSubmit(BuildContext context) {
+    // TODO Check this method to pop out from modal
+    // Navigator.popUntil(context, ModalRoute.withName(ClassroomsScreen.routeName));
+    int count = 0;
+    Navigator.popUntil(context, (_) => count++ >= 2);
+  }
+
+  Widget _classroomForm(BuildContext context) {
+    return NewClassroomForm(
+      onSubmit: () => _onSubmit(context),
+      store: newClassroomStore,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListView(
@@ -73,29 +86,20 @@ class _NewClassroomStep2Content extends StatelessWidget {
           ),
         ),
         SizedBox(height: 15),
-        Consumer<ClassroomsStore>(
-          builder: (_, store, __) {
-            return NewClassroomForm(onSave: (ClassroomModel classroom) {
-              newClassroomStore.addSelectedAsanasToClassroom(classroom);
-              store.addClassroom(classroom);
-
-              // TODO Check this method to pop out from modal
-              Navigator.popUntil(context, ModalRoute.withName(ClassroomsScreen.routeName));
-              //int count = 0; Navigator.popUntil(context, (_) => count++ >= 2);
-            });
-          },
-        ),
+        _classroomForm(context),
       ],
     );
   }
 }
 
 class NewClassroomForm extends StatefulWidget {
-  final Function(ClassroomModel model) onSave;
+  final Function onSubmit;
+  final NewClassroomStore store;
 
-  const NewClassroomForm({
+  NewClassroomForm({
     Key key,
-    @required this.onSave,
+    @required this.onSubmit,
+    @required this.store,
   }) : super(key: key);
 
   @override
@@ -111,7 +115,19 @@ class _NewClassroomFormState extends State<NewClassroomForm> {
   void initState() {
     super.initState();
 
-    timeIntervalController.text = "0:30";
+    titleController.addListener(() => widget.store.formTitle = titleController.text);
+    timeIntervalController.addListener(() =>
+        widget.store.formTimeInterval = _formatTimeIntervalToSeconds(timeIntervalController.text));
+    descriptionController
+        .addListener(() => widget.store.formDescription = descriptionController.text);
+
+    final existingClassroom = widget.store.editableClassroom;
+    if (existingClassroom != null) {
+      titleController.text = existingClassroom.title ?? '';
+      descriptionController.text = existingClassroom.description ?? '';
+    }
+
+    timeIntervalController.text = "0:30"; // TODO: Add time interval to Classroom form
   }
 
   @override
@@ -133,17 +149,8 @@ class _NewClassroomFormState extends State<NewClassroomForm> {
   void _submitForm() {
     FocusScope.of(context).unfocus();
 
-    final title = titleController.text;
-    final description = descriptionController.text;
-    final timeInterval = timeIntervalController.text;
-
-    final classroom = ClassroomModel(
-      title: title,
-      description: description,
-      timeBetweenAsanas: _formatTimeIntervalToSeconds(timeInterval),
-    );
-
-    widget.onSave(classroom);
+    widget.store.saveForm();
+    widget.onSubmit();
   }
 
   @override

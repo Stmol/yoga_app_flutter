@@ -64,13 +64,31 @@ abstract class ClassroomsStoreBase with Store {
   }
 
   @action
-  void addClassroom(ClassroomModel model) {
-    _classrooms = _classrooms.rebuild((b) => b.add(model));
+  void addClassroom(ClassroomModel classroom) {
+    if (_classrooms.contains(classroom)) {
+      // FIXME: Throw an exception
+      Log.warn("Somehow you trying add existing classroom");
+      return;
+    }
+
+    _classrooms = _classrooms.rebuild((b) => b.add(classroom));
   }
 
   @action
-  void deleteClassroom(ClassroomModel model) {
-    _classrooms = _classrooms.rebuild((b) => b.removeWhere((c) => c == model));
+  void updateClassroom(ClassroomModel classroom) {
+    // TODO: are you sure about id comparing?
+    final replacementIndex = _classrooms.indexWhere((c) => c.id == classroom.id);
+    if (replacementIndex == -1) {
+      return;
+    }
+
+    // TODO: Async access to _classrooms before replacing by index?
+    _classrooms = _classrooms.rebuild((b) => b[replacementIndex] = classroom);
+  }
+
+  @action
+  void deleteClassroom(ClassroomModel classroom) {
+    _classrooms = _classrooms.rebuild((b) => b.removeWhere((c) => c == classroom));
   }
 
   Future<List<ClassroomModel>> _loadClassroomsFromJSON(String jsonData) async {
@@ -79,34 +97,3 @@ abstract class ClassroomsStoreBase with Store {
     return jsonDecoded.map((e) => ClassroomModel.fromJSON(e)).toList();
   }
 }
-
-// class ClassroomsStore {
-//   final _classrooms = BehaviorSubject<List<ClassroomModel>>();
-//   Stream<List<ClassroomModel>> get classrooms => _classrooms.asBroadcastStream();
-
-//   Stream<List<ClassroomModel>> get predefinedClassrooms {
-//     return _classrooms.asBroadcastStream().map((list) {
-//       return list.where((classroom) {
-//         print(classroom.isPredefined);
-//         return classroom.isPredefined == true;
-//       } );
-//     });
-//   }
-
-//   Future<String> _loadClassroomsString() async {
-//     return await rootBundle.loadString('assets/data/classrooms.json');
-//   }
-
-//   Future<void> loadClassrooms() async {
-//     String jsonString = await _loadClassroomsString();
-//     final List<dynamic> jsonDecoded = json.decode(jsonString);
-
-//     final classrooms =
-//         List<ClassroomModel>.from(jsonDecoded.map((e) => ClassroomModel.fromJSON(e)));
-//     _classrooms.add(classrooms);
-//   }
-
-//   void dispose() {
-//     _classrooms.close();
-//   }
-// }

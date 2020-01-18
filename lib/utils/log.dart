@@ -6,8 +6,10 @@ class Log {
   static void init() {
     _instance = Logger(
       printer: PrettyPrinter(
+        methodCount: 0,
         colors: true,
-        lineLength: 60,
+        lineLength: 80,
+        printTime: true,
       ),
     );
   }

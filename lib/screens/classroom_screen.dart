@@ -1,16 +1,63 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:mobx/mobx.dart';
 import 'package:my_yoga_fl/models/classroom_model.dart';
 import 'package:my_yoga_fl/screens/asana_screen.dart';
+import 'package:my_yoga_fl/screens/new_classroom/step_1.dart';
 import 'package:my_yoga_fl/stores/asanas_store.dart';
+import 'package:my_yoga_fl/stores/classrooms_store.dart';
+import 'package:my_yoga_fl/stores/new_classroom_store.dart';
 import 'package:my_yoga_fl/widgets/asanas_list.dart';
 import 'package:provider/provider.dart';
 
-class ClassroomScreen extends StatelessWidget {
+class ClassroomScreen extends StatefulWidget {
   final ClassroomModel classroom;
 
   const ClassroomScreen({Key key, @required this.classroom}) : super(key: key);
+
+  @override
+  _ClassroomScreenState createState() => _ClassroomScreenState(classroom);
+}
+
+class _ClassroomScreenState extends State<ClassroomScreen> {
+  ClassroomModel _classroom;
+
+  _ClassroomScreenState(this._classroom);
+
+  Widget _getEditButton(BuildContext context) {
+    return IconButton(
+      icon: Icon(Icons.edit, color: Colors.black),
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            fullscreenDialog: true,
+            builder: (_) {
+              final newClassroomStore = NewClassroomStore.withClassroom(
+                _classroom,
+                Provider.of<AsanasStore>(context, listen: false).asanas,
+              );
+
+              // TODO: I want to think it have to use "when" a reaction for once
+              // TODO: Are you sure it doesn't need to dispose it? (looks like yes)
+              reaction<ClassroomModel>(
+                (_) => newClassroomStore.editableClassroom,
+                (editableClassroom) {
+                  Provider.of<ClassroomsStore>(context, listen: false,)
+                      .updateClassroom(editableClassroom);
+                  // Update ClassroomScreen
+                  setState(() => _classroom = editableClassroom);
+                },
+              );
+
+              return NewClassroomStep1Screen(newClassroomStore: newClassroomStore);
+            },
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,12 +74,15 @@ class ClassroomScreen extends StatelessWidget {
           color: Colors.grey,
           onPressed: () => Navigator.of(context).pop(),
         ),
+        actions: <Widget>[
+          _getEditButton(context),
+        ],
         title: Text(
-          classroom.title,
+          _classroom.title,
           style: Theme.of(context).textTheme.title,
         ),
       ),
-      body: _ClassroomScreenContent(classroom: classroom),
+      body: _ClassroomScreenContent(classroom: _classroom),
     );
   }
 }
@@ -107,8 +157,8 @@ class _ClassroomScreenContent extends StatelessWidget {
   }
 
   Widget _getAsanasList(BuildContext context) {
-    final store = Provider.of<AsanasStore>(context);
-    final asanas = store.getAsanasForClassroom(classroom);
+    final store = Provider.of<AsanasStore>(context, listen: false);
+    final asanas = store.getAsanasInClassroom(classroom);
 
     if (asanas.isEmpty) {
       return Container(); // TODO: Empty list

@@ -7,6 +7,19 @@ part 'classroom_model.g.dart';
 
 @JsonSerializable()
 class ClassroomModel {
+  ClassroomModel({
+    String id,
+    @required this.title,
+    this.description,
+    this.coverImage,
+    List<String> asanasUniqueNames,
+    this.timeBetweenAsanas = 300,
+    this.isPredefined = false,
+  })  : id = id ?? Uuid().v4(),
+        asanasUniqueNames = asanasUniqueNames ?? <String>[],
+        assert(title != null);
+  // FIXME: assert(asanasUniqueNames.isNotEmpty)
+
   final String id;
   final String title;
   final String description;
@@ -14,16 +27,6 @@ class ClassroomModel {
   final int timeBetweenAsanas;
   final bool isPredefined;
   final List<String> asanasUniqueNames;
-
-  ClassroomModel({
-    @required this.title,
-    this.description,
-    this.coverImage,
-    List<String> asanasUniqueNames,
-    this.timeBetweenAsanas = 300,
-    this.isPredefined = false,
-  })  : id = Uuid().v4(),
-        asanasUniqueNames = asanasUniqueNames ?? <String>[];
 
   factory ClassroomModel.fromJSON(Map<String, dynamic> json) => _$ClassroomModelFromJson(json);
 
