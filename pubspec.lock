@@ -98,7 +98,7 @@ packages:
       name: built_value
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "7.0.6"
+    version: "7.0.8"
   charcode:
     dependency: transitive
     description:
@@ -295,7 +295,7 @@ packages:
       name: logging
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.11.3+2"
+    version: "0.11.4"
   matcher:
     dependency: transitive
     description:
@@ -330,7 +330,7 @@ packages:
       name: mobx_codegen
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.4.0+1"
+    version: "0.4.1"
   nested:
     dependency: transitive
     description:
@@ -414,7 +414,7 @@ packages:
       name: provider
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "4.0.1"
+    version: "4.0.2"
   pub_semver:
     dependency: transitive
     description:

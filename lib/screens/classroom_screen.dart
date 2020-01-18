@@ -26,6 +26,10 @@ class _ClassroomScreenState extends State<ClassroomScreen> {
   _ClassroomScreenState(this._classroom);
 
   Widget _getEditButton(BuildContext context) {
+    if (_classroom.isPredefined == true) {
+      return Container();
+    }
+
     return IconButton(
       icon: Icon(Icons.edit, color: Colors.black),
       onPressed: () {
@@ -42,8 +46,8 @@ class _ClassroomScreenState extends State<ClassroomScreen> {
               // TODO: I want to think it have to use "when" a reaction for once
               // TODO: Are you sure it doesn't need to dispose it? (looks like yes)
               reaction<ClassroomModel>(
-                (_) => newClassroomStore.editableClassroom,
-                (editableClassroom) {
+                    (_) => newClassroomStore.editableClassroom,
+                    (editableClassroom) {
                   Provider.of<ClassroomsStore>(context, listen: false,)
                       .updateClassroom(editableClassroom);
                   // Update ClassroomScreen

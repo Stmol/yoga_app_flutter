@@ -51,6 +51,23 @@ abstract class _NewClassroomStoreBase with Store {
     selectedAsanas = selectedAsanas.rebuild((b) => b.remove(asana));
   }
 
+  @action
+  void reorderSelectedAsana(int fromIndex, int toIndex) {
+    final asana = selectedAsanas[fromIndex];
+    if (asana == null) {
+      return;
+    }
+
+    if (toIndex > fromIndex) {
+      toIndex -= 1;
+    }
+
+    selectedAsanas = selectedAsanas.rebuild((b) =>
+    b
+      ..removeAt(fromIndex)
+      ..insert(toIndex, asana));
+  }
+
   ///
   /// Handle submitting data from form to saving classroom
   ///

@@ -115,11 +115,17 @@ class _NewClassroomFormState extends State<NewClassroomForm> {
   void initState() {
     super.initState();
 
-    titleController.addListener(() => widget.store.formTitle = titleController.text);
-    timeIntervalController.addListener(() =>
-        widget.store.formTimeInterval = _formatTimeIntervalToSeconds(timeIntervalController.text));
-    descriptionController
-        .addListener(() => widget.store.formDescription = descriptionController.text);
+    titleController.addListener(() {
+      widget.store.formTitle = titleController.text;
+    });
+
+    timeIntervalController.addListener(() {
+      widget.store.formTimeInterval = _formatTimeIntervalToSeconds(timeIntervalController.text);
+    });
+
+    descriptionController.addListener(() {
+      widget.store.formDescription = descriptionController.text;
+    });
 
     final existingClassroom = widget.store.editableClassroom;
     if (existingClassroom != null) {

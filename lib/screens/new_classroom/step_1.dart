@@ -120,15 +120,26 @@ class _SelectedAsanasListTabView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Observer(
-      builder: (_) => ListView.builder(
-        itemCount: newClassroomStore.countOfSelectedAsanas,
-        itemBuilder: (_, index) {
-          return Container(
-            child: _AsanaListItem(
-              asana: newClassroomStore.selectedAsanas[index],
+      // TODO: [ReorderableListView] are bad choice for complex large lists
+      // FIXME: Should find another solution for reorderable list
+      builder: (_) =>
+          ReorderableListView(
+            children: <Widget>[
+              for (final asana in newClassroomStore.selectedAsanas)
+                _AsanaListItem(
+                  // FIXME: UniqueKey
+                  key: UniqueKey(),
+                  asana: asana,
               newClassroomStore: newClassroomStore,
+                  isShowReorderIcon: newClassroomStore.selectedAsanas.length > 1,
             ),
-          );
+            ],
+            onReorder: (prevIdx, newIdx) {
+              if (newClassroomStore.selectedAsanas.length < 2) {
+                return;
+              }
+
+              newClassroomStore.reorderSelectedAsana(prevIdx, newIdx);
         },
       ),
     );
@@ -138,11 +149,38 @@ class _SelectedAsanasListTabView extends StatelessWidget {
 class _AsanaListItem extends StatelessWidget {
   final AsanaModel asana;
   final NewClassroomStore newClassroomStore;
+  final isShowReorderIcon;
 
   _AsanaListItem({
+                   Key key,
     @required this.asana,
     @required this.newClassroomStore,
-  });
+                   this.isShowReorderIcon = false,
+                 }) : super(key: key);
+
+  Widget _getReorderIcon() {
+    if (isShowReorderIcon == false) {
+      return Container();
+    }
+
+    return Row(
+      children: <Widget>[
+        Icon(Icons.reorder, color: Colors.grey),
+        SizedBox(width: 5),
+      ],
+    );
+  }
+
+  Widget _getAsanaImage() {
+    return Container(
+      width: 50,
+      height: 50,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(4),
+        color: Colors.grey[300],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -161,14 +199,8 @@ class _AsanaListItem extends StatelessWidget {
             Flexible(
               child: Row(
                 children: <Widget>[
-                  Container(
-                    width: 50,
-                    height: 50,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(4),
-                      color: Colors.grey[300],
-                    ),
-                  ),
+                  _getReorderIcon(),
+                  _getAsanaImage(),
                   SizedBox(width: 5),
                   Flexible(
                     child: Text(
