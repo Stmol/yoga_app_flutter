@@ -76,6 +76,16 @@ mixin _$NewClassroomStore on _NewClassroomStoreBase, Store {
   }
 
   @override
+  void reorderSelectedAsana(int fromIndex, int toIndex) {
+    final _$actionInfo = _$_NewClassroomStoreBaseActionController.startAction();
+    try {
+      return super.reorderSelectedAsana(fromIndex, toIndex);
+    } finally {
+      _$_NewClassroomStoreBaseActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   void saveForm() {
     final _$actionInfo = _$_NewClassroomStoreBaseActionController.startAction();
     try {

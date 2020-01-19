@@ -43,17 +43,12 @@ class _ClassroomScreenState extends State<ClassroomScreen> {
                 Provider.of<AsanasStore>(context, listen: false).asanas,
               );
 
-              // TODO: I want to think it have to use "when" a reaction for once
-              // TODO: Are you sure it doesn't need to dispose it? (looks like yes)
-              reaction<ClassroomModel>(
-                    (_) => newClassroomStore.editableClassroom,
-                    (editableClassroom) {
-                  Provider.of<ClassroomsStore>(context, listen: false,)
-                      .updateClassroom(editableClassroom);
-                  // Update ClassroomScreen
-                  setState(() => _classroom = editableClassroom);
-                },
-              );
+              when((_) => newClassroomStore.editableClassroom != _classroom, () {
+                Provider.of<ClassroomsStore>(context, listen: false)
+                    .updateClassroom(newClassroomStore.editableClassroom);
+                // Update ClassroomScreen widget
+                setState(() => _classroom = newClassroomStore.editableClassroom);
+              });
 
               return NewClassroomStep1Screen(newClassroomStore: newClassroomStore);
             },
@@ -73,6 +68,7 @@ class _ClassroomScreenState extends State<ClassroomScreen> {
         backgroundColor: Colors.white,
         elevation: 0.0,
         automaticallyImplyLeading: false,
+        brightness: Brightness.light,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           color: Colors.grey,

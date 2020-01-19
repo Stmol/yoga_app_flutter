@@ -25,6 +25,7 @@ class ClassroomsScreen extends StatelessWidget {
         backgroundColor: Colors.white,
         elevation: 0.0,
         automaticallyImplyLeading: false,
+        brightness: Brightness.light,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           color: Colors.grey,

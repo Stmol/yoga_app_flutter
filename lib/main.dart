@@ -119,6 +119,7 @@ class _MyHomePageState extends State<MyHomePage> {
         centerTitle: false,
         backgroundColor: Colors.transparent,
         elevation: 0.0,
+        brightness: Brightness.light,
       ),
       body: Padding(
         padding: const EdgeInsets.all(18.0),

@@ -13,6 +13,7 @@ class Header extends StatelessWidget {
       backgroundColor: Colors.transparent,
       elevation: 0.0,
       automaticallyImplyLeading: false,
+      brightness: Brightness.light,
       leading: IconButton(
         icon: const Icon(Icons.arrow_back),
         color: Colors.grey,

@@ -77,12 +77,20 @@ abstract class _NewClassroomStoreBase with Store {
 
     ClassroomModel newClassroom;
 
+    // FIXME: Warning! I should start using built_value in this project
+    /// Comment: Why i did it?
+    /// Because instance of class List<String> in [asanasUniqueNames] property of [ClassroomModel]
+    /// are passing by reference (Surprise!)
+    final asanasUniqueNames = selectedAsanas
+        .map<String>((asana) => asana.uniqueName)
+        .toList(growable: false);
+
     if (editableClassroom != null) {
       newClassroom = ClassroomModel(
         id: editableClassroom.id,
         title: formTitle ?? editableClassroom.title,
         description: formDescription ?? editableClassroom.description,
-        asanasUniqueNames: editableClassroom.asanasUniqueNames,
+        asanasUniqueNames: asanasUniqueNames,
         coverImage: editableClassroom.coverImage,
         isPredefined: editableClassroom.isPredefined,
         timeBetweenAsanas: formTimeInterval ?? editableClassroom.timeBetweenAsanas,
@@ -92,10 +100,11 @@ abstract class _NewClassroomStoreBase with Store {
         title: formTitle,
         description: formDescription,
         timeBetweenAsanas: formTimeInterval,
+        asanasUniqueNames: asanasUniqueNames,
       );
     }
 
-    _addSelectedAsanasToClassroom(newClassroom);
+    //_addSelectedAsanasToClassroom(newClassroom);
     editableClassroom = newClassroom;
   }
 
