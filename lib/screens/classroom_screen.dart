@@ -161,7 +161,7 @@ class _ClassroomScreenContent extends StatelessWidget {
     final asanas = store.getAsanasInClassroom(classroom);
 
     if (asanas.isEmpty) {
-      return Container(); // TODO: Empty list
+      return SliverList(delegate: SliverChildListDelegate([])); // TODO: Empty list
     }
 
     return SliverList(

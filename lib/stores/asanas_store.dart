@@ -17,12 +17,7 @@ abstract class AsanasStoreBase with Store {
 
   @action
   Future<void> initAsanas() async {
-    Log.debug('Init asanas');
-    await _loadAsanasFromJSON().then(
-      (list) => asanas = asanas.rebuild(
-        (b) => b.addAll(list),
-      ),
-    );
+    await _loadAsanas();
   }
 
   List<AsanaModel> getAsanasInClassroom(ClassroomModel classroom) {
@@ -30,9 +25,33 @@ abstract class AsanasStoreBase with Store {
       return [];
     }
 
-    return classroom.asanasUniqueNames.map<AsanaModel>((String uniqueName) {
-      return asanas.firstWhere((a) => a.uniqueName == uniqueName);
-    }).toList(growable: false);
+    final classroomAsanas = classroom.asanasUniqueNames.map<AsanaModel>((uniqueName) {
+      return asanas.singleWhere((a) => a.uniqueName == uniqueName, orElse: () => null);
+    }).toList();
+
+    classroomAsanas.removeWhere((a) => a == null);
+
+    return classroomAsanas;
+  }
+
+  // TODO: Delete | Warning: don't use it!
+  Future<void> refreshData() async {
+    await _loadAsanas();
+  }
+
+  Future<void> _loadAsanas() async {
+    Log.debug('Load asanas from JSON');
+
+    await _loadAsanasFromJSON().then(
+          (list) =>
+      asanas = asanas.rebuild(
+            (b) =>
+        b
+          ..clear()
+          ..addAll(list)
+          ..sort((a, b) => a.title.compareTo(b.title)),
+      ),
+    );
   }
 
   Future<List<AsanaModel>> _loadAsanasFromJSON() async {

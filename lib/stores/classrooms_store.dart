@@ -41,8 +41,7 @@ abstract class ClassroomsStoreBase with Store {
       _classrooms = BuiltList<ClassroomModel>.from(loadedClassrooms);
     } else {
       /// If it empty or got error, obtain default classrooms from static JSON file
-      final jsonString = await rootBundle.loadString('assets/data/classrooms.json');
-      await _loadClassroomsFromJSON(jsonString).then((loaded) {
+      await _loadClassroomsFromJSON().then((loaded) {
         _classrooms = _classrooms.rebuild((b) => b.addAll(loaded));
       });
     }
@@ -91,8 +90,19 @@ abstract class ClassroomsStoreBase with Store {
     _classrooms = _classrooms.rebuild((b) => b.removeWhere((c) => c == classroom));
   }
 
-  Future<List<ClassroomModel>> _loadClassroomsFromJSON(String jsonData) async {
-    final List<dynamic> jsonDecoded = json.decode(jsonData);
+  // TODO: Delete | Warning: don't use it!
+  Future<void> refreshData() async {
+    final data = await _loadClassroomsFromJSON();
+    _classrooms = _classrooms.rebuild((b) =>
+    b
+      ..clear()
+      ..addAll(data));
+  }
+
+  // FIXME: Move that logic to repository layer
+  Future<List<ClassroomModel>> _loadClassroomsFromJSON() async {
+    final jsonString = await rootBundle.loadString('assets/data/classrooms.json');
+    final List<dynamic> jsonDecoded = json.decode(jsonString);
 
     return jsonDecoded.map((e) => ClassroomModel.fromJSON(e)).toList();
   }

@@ -102,14 +102,16 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  void _clearAndRefresh(BuildContext context) async {
+    final asanasStore = Provider.of<AsanasStore>(context, listen: false);
+    final classroomsStore = Provider.of<ClassroomsStore>(context, listen: false);
+
+    await asanasStore.refreshData();
+    await classroomsStore.refreshData();
+  }
+
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -118,8 +120,8 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         centerTitle: false,
         backgroundColor: Colors.transparent,
-        elevation: 0.0,
         brightness: Brightness.light,
+        elevation: 0.0,
       ),
       body: Padding(
         padding: const EdgeInsets.all(18.0),
@@ -151,13 +153,9 @@ class _MyHomePageState extends State<MyHomePage> {
               ],
             ),
             SizedBox(height: 10),
-            Row(
-              children: <Widget>[
-                Expanded(
-                  child: Button(title: "Быстрая тренировка", onPressed: () => {}),
-                ),
-              ],
-            )
+            Button(title: "Быстрая тренировка", onPressed: () => {}),
+            SizedBox(height: 30),
+            Button(title: "Очистить и обновить данные", onPressed: () => _clearAndRefresh(context)),
           ],
         ),
       ),
