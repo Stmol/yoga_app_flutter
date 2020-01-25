@@ -4,15 +4,21 @@ part 'asana_model.g.dart';
 
 @JsonSerializable()
 class AsanaModel {
-  final String title;
   final String uniqueName;
+  final String title;
+  final String hindiTitle;
   final String imageUrl;
   final double level;
   final String description;
   final String warnings;
 
-  AsanaModel(
-      {this.uniqueName, this.imageUrl, this.title, this.level, this.description, this.warnings});
+  AsanaModel(this.uniqueName,
+             this.title,
+             this.hindiTitle,
+             this.imageUrl,
+             this.level,
+             this.description,
+             this.warnings,);
 
   factory AsanaModel.fromJson(Map<String, dynamic> json) => _$AsanaModelFromJson(json);
 
@@ -21,19 +27,21 @@ class AsanaModel {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is AsanaModel &&
-          runtimeType == other.runtimeType &&
-          title == other.title &&
-          uniqueName == other.uniqueName &&
-          imageUrl == other.imageUrl &&
-          level == other.level &&
-          description == other.description &&
-          warnings == other.warnings;
+          other is AsanaModel &&
+              runtimeType == other.runtimeType &&
+              uniqueName == other.uniqueName &&
+              title == other.title &&
+              hindiTitle == other.hindiTitle &&
+              imageUrl == other.imageUrl &&
+              level == other.level &&
+              description == other.description &&
+              warnings == other.warnings;
 
   @override
   int get hashCode =>
-      title.hashCode ^
       uniqueName.hashCode ^
+      title.hashCode ^
+      hindiTitle.hashCode ^
       imageUrl.hashCode ^
       level.hashCode ^
       description.hashCode ^

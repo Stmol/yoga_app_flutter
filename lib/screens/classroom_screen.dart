@@ -5,9 +5,11 @@ import 'package:mobx/mobx.dart';
 import 'package:my_yoga_fl/models/classroom_model.dart';
 import 'package:my_yoga_fl/screens/asana_screen.dart';
 import 'package:my_yoga_fl/screens/new_classroom/step_1.dart';
+import 'package:my_yoga_fl/screens/player/player_main_screen.dart';
 import 'package:my_yoga_fl/stores/asanas_store.dart';
 import 'package:my_yoga_fl/stores/classrooms_store.dart';
 import 'package:my_yoga_fl/stores/new_classroom_store.dart';
+import 'package:my_yoga_fl/stores/player_store.dart';
 import 'package:my_yoga_fl/widgets/asanas_list.dart';
 import 'package:provider/provider.dart';
 
@@ -134,24 +136,47 @@ class _ClassroomScreenContent extends StatelessWidget {
     );
   }
 
-  Widget _getStartButton() {
-    return Container(
-      height: 55,
-      margin: EdgeInsets.only(bottom: HEIGHT_BETWEEN_WIDGETS),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(5),
-        color: Colors.yellow[300], // TODO: Add glow effect
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Icon(Icons.play_arrow),
-          SizedBox(width: 5),
-          Text(
-            "Начать",
-            style: TextStyle(fontSize: 21, fontWeight: FontWeight.bold),
+  Widget _getStartButton(BuildContext context) {
+    return GestureDetector(
+      // TODO: Change widget to MaterialButton
+      onTap: () {
+        final asanasStore = Provider.of<AsanasStore>(context, listen: false);
+        final asanasInClassroom = asanasStore.getAsanasInClassroom(classroom);
+
+        if (asanasInClassroom.isEmpty) {
+          return null; // FIXME: It doesn't do button disabled
+        }
+
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            fullscreenDialog: true,
+            builder: (context) {
+              final playerStore = PlayerStore(asanasInClassroom);
+
+              return PlayerMainScreen(classroom: classroom, playerStore: playerStore);
+            },
           ),
-        ],
+        );
+      },
+      child: Container(
+        height: 55,
+        margin: EdgeInsets.only(bottom: HEIGHT_BETWEEN_WIDGETS),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(5),
+          color: Colors.yellow[300], // TODO: Add glow effect
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Icon(Icons.play_arrow),
+            SizedBox(width: 5),
+            Text(
+              "Начать",
+              style: TextStyle(fontSize: 21, fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -203,7 +228,7 @@ class _ClassroomScreenContent extends StatelessWidget {
               delegate: SliverChildListDelegate([
                 _getClassroomImage(),
                 _getClassroomDescription(),
-                _getStartButton(),
+                _getStartButton(context),
               ]),
             ),
             _getAsanasList(context),

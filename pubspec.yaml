@@ -1,5 +1,5 @@
 name: my_yoga_fl
-description: Your personal classrooms for yoga
+description: Your personal Yoga classrooms
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -14,7 +14,7 @@ description: Your personal classrooms for yoga
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.3.0 <3.0.0"
+  sdk: ">=2.6.0 <3.0.0"
 
 dependencies:
   flutter:
@@ -33,6 +33,8 @@ dependencies:
   flutter_mobx:
   intl: ^0.16.1
   built_collection: ^4.3.2
+  flutter_widgets: ^0.1.9
+  wakelock: ^0.1.3+4
 
 dev_dependencies:
   flutter_test:

@@ -44,15 +44,17 @@ class ClassroomsScreen extends StatelessWidget {
 class _ClassroomsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.all(20),
-      children: <Widget>[
-        SearchField(),
-        SizedBox(height: 15),
-        _PredefinedClassesList(),
-        SizedBox(height: 15),
-        _ActiveClassesList(),
-      ],
+    return SafeArea(
+      child: ListView(
+        padding: const EdgeInsets.all(20),
+        children: <Widget>[
+          SearchField(),
+          SizedBox(height: 15),
+          _PredefinedClassesList(),
+          SizedBox(height: 15),
+          _ActiveClassesList(),
+        ],
+      ),
     );
   }
 }
@@ -231,7 +233,6 @@ class _ActiveClassesList extends StatelessWidget {
             );
           },
         ),
-        SizedBox(height: 10),
         Container(
           width: double.infinity,
           child: Button(
