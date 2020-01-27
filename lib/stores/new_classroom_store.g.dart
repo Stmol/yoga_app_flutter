@@ -9,13 +9,6 @@ part of 'new_classroom_store.dart';
 // ignore_for_file: non_constant_identifier_names, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic
 
 mixin _$NewClassroomStore on _NewClassroomStoreBase, Store {
-  Computed<int> _$countOfSelectedAsanasComputed;
-
-  @override
-  int get countOfSelectedAsanas => (_$countOfSelectedAsanasComputed ??=
-          Computed<int>(() => super.countOfSelectedAsanas))
-      .value;
-
   final _$editableClassroomAtom =
       Atom(name: '_NewClassroomStoreBase.editableClassroom');
 
@@ -34,52 +27,63 @@ mixin _$NewClassroomStore on _NewClassroomStoreBase, Store {
     }, _$editableClassroomAtom, name: '${_$editableClassroomAtom.name}_set');
   }
 
-  final _$selectedAsanasAtom =
-      Atom(name: '_NewClassroomStoreBase.selectedAsanas');
+  final _$classroomRoutinesAtom =
+      Atom(name: '_NewClassroomStoreBase.classroomRoutines');
 
   @override
-  BuiltList<AsanaModel> get selectedAsanas {
-    _$selectedAsanasAtom.context.enforceReadPolicy(_$selectedAsanasAtom);
-    _$selectedAsanasAtom.reportObserved();
-    return super.selectedAsanas;
+  BuiltList<ClassroomRoutineModel> get classroomRoutines {
+    _$classroomRoutinesAtom.context.enforceReadPolicy(_$classroomRoutinesAtom);
+    _$classroomRoutinesAtom.reportObserved();
+    return super.classroomRoutines;
   }
 
   @override
-  set selectedAsanas(BuiltList<AsanaModel> value) {
-    _$selectedAsanasAtom.context.conditionallyRunInAction(() {
-      super.selectedAsanas = value;
-      _$selectedAsanasAtom.reportChanged();
-    }, _$selectedAsanasAtom, name: '${_$selectedAsanasAtom.name}_set');
+  set classroomRoutines(BuiltList<ClassroomRoutineModel> value) {
+    _$classroomRoutinesAtom.context.conditionallyRunInAction(() {
+      super.classroomRoutines = value;
+      _$classroomRoutinesAtom.reportChanged();
+    }, _$classroomRoutinesAtom, name: '${_$classroomRoutinesAtom.name}_set');
   }
 
   final _$_NewClassroomStoreBaseActionController =
       ActionController(name: '_NewClassroomStoreBase');
 
   @override
-  void selectAsana(AsanaModel asana) {
+  void addRoutineToClassroomWithAsana(AsanaModel asana) {
     final _$actionInfo = _$_NewClassroomStoreBaseActionController.startAction();
     try {
-      return super.selectAsana(asana);
+      return super.addRoutineToClassroomWithAsana(asana);
     } finally {
       _$_NewClassroomStoreBaseActionController.endAction(_$actionInfo);
     }
   }
 
   @override
-  void deselectAsana(AsanaModel asana) {
+  void updateRoutineDuration(
+      ClassroomRoutineModel classroomRoutine, Duration newDuration) {
     final _$actionInfo = _$_NewClassroomStoreBaseActionController.startAction();
     try {
-      return super.deselectAsana(asana);
+      return super.updateRoutineDuration(classroomRoutine, newDuration);
     } finally {
       _$_NewClassroomStoreBaseActionController.endAction(_$actionInfo);
     }
   }
 
   @override
-  void reorderSelectedAsana(int fromIndex, int toIndex) {
+  void removeRoutineFromClassroom(ClassroomRoutineModel classroomRoutine) {
     final _$actionInfo = _$_NewClassroomStoreBaseActionController.startAction();
     try {
-      return super.reorderSelectedAsana(fromIndex, toIndex);
+      return super.removeRoutineFromClassroom(classroomRoutine);
+    } finally {
+      _$_NewClassroomStoreBaseActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void reorderClassroomRoutine(int fromIndex, int toIndex) {
+    final _$actionInfo = _$_NewClassroomStoreBaseActionController.startAction();
+    try {
+      return super.reorderClassroomRoutine(fromIndex, toIndex);
     } finally {
       _$_NewClassroomStoreBaseActionController.endAction(_$actionInfo);
     }

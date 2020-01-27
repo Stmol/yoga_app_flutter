@@ -25,7 +25,7 @@ class AsanasScreen extends StatelessWidget {
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
-          "Асаны и позы",
+          'Асаны и позы',
           style: Theme.of(context).textTheme.title,
         ),
       ),
@@ -47,7 +47,7 @@ class _AsanasScreen extends StatelessWidget {
           Consumer<AsanasStore>(builder: (_, store, __) {
             return Observer(builder: (_) {
               // FIXME: toBuiltList()
-              return AsanasList(asanas: store.asanas.toList(growable: false));
+              return AsanasList(asanas: store.sortedAsanasList);
             });
           }),
         ],

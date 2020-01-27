@@ -17,4 +17,10 @@ extension DurationAsTimer on Duration {
 
     return result;
   }
+
+  String toTimeString() {
+    // TODO: '$inHours:'
+    return '${(inMinutes % 60).toString().padLeft(2, '0')}:'
+        '${(inSeconds % 60).toString().padLeft(2, '0')}';
+  }
 }

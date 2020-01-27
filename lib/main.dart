@@ -36,7 +36,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         Provider<AsanasStore>(
-          create: (_) => AsanasStore()..initAsanas(),
+          create: (_) => AsanasStore()..init(),
           lazy: false,
         ),
         Provider<ClassroomsStore>(
@@ -51,11 +51,11 @@ class MyApp extends StatelessWidget {
         )
       ],
       child: MaterialApp(
-        title: 'My Yoga App',
+        title: 'Yoga App',
         debugShowCheckedModeBanner: false,
         initialRoute: MyHomePage.routeName,
         routes: {
-          MyHomePage.routeName: (context) => MyHomePage(title: 'My Yoga'),
+          MyHomePage.routeName: (context) => MyHomePage(title: 'Yoga'),
           ClassroomsScreen.routeName: (context) => ClassroomsScreen(),
           AsanasScreen.routeName: (context) => AsanasScreen(),
         },

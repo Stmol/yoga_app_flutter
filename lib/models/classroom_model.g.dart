@@ -8,12 +8,14 @@ part of 'classroom_model.dart';
 
 ClassroomModel _$ClassroomModelFromJson(Map<String, dynamic> json) {
   return ClassroomModel(
-    id: json['id'] as String,
     title: json['title'] as String,
     description: json['description'] as String,
     coverImage: json['coverImage'] as String,
-    asanasUniqueNames:
-        (json['asanasUniqueNames'] as List)?.map((e) => e as String)?.toList(),
+    classroomRoutines: (json['classroomRoutines'] as List)
+        ?.map((e) => e == null
+            ? null
+            : ClassroomRoutineModel.fromJSON(e as Map<String, dynamic>))
+        ?.toList(),
     timeBetweenAsanas: json['timeBetweenAsanas'] as int,
     isPredefined: json['isPredefined'] as bool,
   );
@@ -21,11 +23,11 @@ ClassroomModel _$ClassroomModelFromJson(Map<String, dynamic> json) {
 
 Map<String, dynamic> _$ClassroomModelToJson(ClassroomModel instance) =>
     <String, dynamic>{
-      'id': instance.id,
       'title': instance.title,
       'description': instance.description,
       'coverImage': instance.coverImage,
       'timeBetweenAsanas': instance.timeBetweenAsanas,
       'isPredefined': instance.isPredefined,
-      'asanasUniqueNames': instance.asanasUniqueNames,
+      'classroomRoutines':
+          instance.classroomRoutines?.map((e) => e?.toJSON())?.toList(),
     };

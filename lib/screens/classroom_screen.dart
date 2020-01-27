@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
+import 'package:my_yoga_fl/i18n/plural.dart';
 import 'package:my_yoga_fl/models/classroom_model.dart';
 import 'package:my_yoga_fl/screens/asana_screen.dart';
 import 'package:my_yoga_fl/screens/new_classroom/step_1.dart';
@@ -10,13 +11,17 @@ import 'package:my_yoga_fl/stores/asanas_store.dart';
 import 'package:my_yoga_fl/stores/classrooms_store.dart';
 import 'package:my_yoga_fl/stores/new_classroom_store.dart';
 import 'package:my_yoga_fl/stores/player_store.dart';
+import 'package:my_yoga_fl/styles.dart';
 import 'package:my_yoga_fl/widgets/asanas_list.dart';
 import 'package:provider/provider.dart';
 
 class ClassroomScreen extends StatefulWidget {
   final ClassroomModel classroom;
 
-  const ClassroomScreen({Key key, @required this.classroom}) : super(key: key);
+  const ClassroomScreen({
+    Key key,
+    @required this.classroom,
+  }) : super(key: key);
 
   @override
   _ClassroomScreenState createState() => _ClassroomScreenState(classroom);
@@ -29,7 +34,7 @@ class _ClassroomScreenState extends State<ClassroomScreen> {
 
   Widget _getEditButton(BuildContext context) {
     if (_classroom.isPredefined == true) {
-      return Container();
+      return SizedBox.shrink();
     }
 
     return IconButton(
@@ -40,10 +45,7 @@ class _ClassroomScreenState extends State<ClassroomScreen> {
           MaterialPageRoute(
             fullscreenDialog: true,
             builder: (_) {
-              final newClassroomStore = NewClassroomStore.withClassroom(
-                _classroom,
-                Provider.of<AsanasStore>(context, listen: false).asanas,
-              );
+              final newClassroomStore = NewClassroomStore.withClassroom(_classroom);
 
               when((_) => newClassroomStore.editableClassroom != _classroom, () {
                 Provider.of<ClassroomsStore>(context, listen: false)
@@ -122,17 +124,14 @@ class _ClassroomScreenContent extends StatelessWidget {
 
   Widget _getClassroomDescription() {
     if (classroom.description == null || classroom.description.isEmpty) {
-      return Container();
+      return SizedBox.shrink();
     }
 
-    return Container(
-      margin: EdgeInsets.only(bottom: HEIGHT_BETWEEN_WIDGETS),
-      child: Text(
-        classroom.description,
-        maxLines: 5,
-        overflow: TextOverflow.ellipsis,
-        style: TextStyle(fontSize: 18, color: Colors.blueGrey),
-      ),
+    return Text(
+      classroom.description,
+      maxLines: 5,
+      overflow: TextOverflow.ellipsis,
+      style: TextStyle(fontSize: 18, color: Colors.blueGrey),
     );
   }
 
@@ -212,6 +211,21 @@ class _ClassroomScreenContent extends StatelessWidget {
     );
   }
 
+  Widget _getClassroomInfo() {
+    final pauseText = classroom.timeBetweenAsanas <= 0
+        ? 'без пауз'
+        : 'паузы по ${classroomTimeRounded(classroom.durationBetweenAsanas)}';
+
+    return Text(
+      '${asanasCount(classroom.classroomRoutines.length)}'
+      ' • $pauseText • всего ${classroomTimeRounded(classroom.totalDuration)}',
+      style: Styles.classroomInfoText,
+      maxLines: 1,
+      softWrap: false,
+      overflow: TextOverflow.ellipsis,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -227,8 +241,15 @@ class _ClassroomScreenContent extends StatelessWidget {
             SliverList(
               delegate: SliverChildListDelegate([
                 _getClassroomImage(),
-                _getClassroomDescription(),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: HEIGHT_BETWEEN_WIDGETS),
+                  child: _getClassroomDescription(),
+                ),
                 _getStartButton(context),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: HEIGHT_BETWEEN_WIDGETS),
+                  child: _getClassroomInfo(),
+                ),
               ]),
             ),
             _getAsanasList(context),

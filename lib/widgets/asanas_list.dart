@@ -1,3 +1,4 @@
+import 'package:built_collection/built_collection.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:my_yoga_fl/models/asana_model.dart';
@@ -5,14 +6,14 @@ import 'package:my_yoga_fl/screens/asana_screen.dart';
 
 // TODO: Delete
 class AsanasList extends StatelessWidget {
-  final List<AsanaModel> asanas;
+  final BuiltList<AsanaModel> asanas;
 
   const AsanasList({Key key, @required this.asanas}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     if (asanas.isEmpty) {
-      return Container(); // TODO: Empty list
+      return SizedBox.shrink(); // TODO: Empty list
     }
 
     return Expanded(
@@ -26,7 +27,7 @@ class AsanasList extends StatelessWidget {
           child: ListView.builder(
             itemCount: asanas.length,
             itemBuilder: (context, index) {
-              var asana = asanas[index];
+              final asana = asanas[index];
 
               return Padding(
                 padding: const EdgeInsets.only(bottom: 15),
@@ -96,14 +97,14 @@ class AsanaListItem extends StatelessWidget {
         height: 80,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
+          children: [
             _getImage(),
             SizedBox(width: 10),
             Flexible(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: <Widget>[
+                children: [
                   Flexible(
                     flex: 2,
                     child: Container(
@@ -111,7 +112,7 @@ class AsanaListItem extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.baseline,
                         textBaseline: TextBaseline.alphabetic,
-                        children: <Widget>[
+                        children: [
                           Flexible(
                             child: Text(
                               title,
@@ -124,7 +125,7 @@ class AsanaListItem extends StatelessWidget {
                           ),
                           Container(
                             child: Text(
-                              "$level",
+                              '$level',
                               style: TextStyle(color: Colors.grey[500], fontWeight: FontWeight.bold),
                             ),
                           )
@@ -136,7 +137,7 @@ class AsanaListItem extends StatelessWidget {
                     flex: 1,
                     child: Container(
                       child: Text(
-                        "для начинающих",
+                        'для начинающих',
                         style: TextStyle(
                           color: Color.fromRGBO(13, 92, 210, 0.9),
                         ),

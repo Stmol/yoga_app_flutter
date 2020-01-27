@@ -3,11 +3,13 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mobx/mobx.dart';
+import 'package:my_yoga_fl/i18n/plural.dart';
 import 'package:my_yoga_fl/models/classroom_model.dart';
 import 'package:my_yoga_fl/screens/classroom_screen.dart';
 import 'package:my_yoga_fl/screens/new_classroom/step_1.dart';
 import 'package:my_yoga_fl/stores/classrooms_store.dart';
 import 'package:my_yoga_fl/stores/new_classroom_store.dart';
+import 'package:my_yoga_fl/styles.dart';
 import 'package:my_yoga_fl/widgets/button.dart';
 import 'package:my_yoga_fl/widgets/search_field.dart';
 import 'package:provider/provider.dart';
@@ -32,7 +34,7 @@ class ClassroomsScreen extends StatelessWidget {
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
-          "Классы",
+          'Классы',
           style: Theme.of(context).textTheme.title,
         ),
       ),
@@ -162,13 +164,15 @@ class _ActiveClassesList extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                Text(
-                  "${classroom.asanasUniqueNames.length} асан",
-                  maxLines: 1,
-                  style: TextStyle(
-                    color: Colors.grey,
-                    fontSize: 14,
-                  ),
+                Row(
+                  children: [
+                    Text(
+                      '${asanasCount(classroom.classroomRoutines.length)}'
+                      ' • ${classroomTimeRounded(classroom.totalDuration)}',
+                      maxLines: 1,
+                      style: Styles.classroomInfoText,
+                    ),
+                  ],
                 )
               ],
             ),
@@ -236,7 +240,7 @@ class _ActiveClassesList extends StatelessWidget {
         Container(
           width: double.infinity,
           child: Button(
-            title: "Создать свой класс",
+            title: 'Создать свой класс',
             onPressed: () {
               Navigator.push(
                 context,

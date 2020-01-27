@@ -2,59 +2,91 @@ import 'package:mobx/mobx.dart';
 import 'package:built_collection/built_collection.dart';
 import 'package:my_yoga_fl/models/asana_model.dart';
 import 'package:my_yoga_fl/models/classroom_model.dart';
+import 'package:my_yoga_fl/models/classroom_routine_model.dart';
+import 'package:my_yoga_fl/utils/log.dart';
 
 part 'new_classroom_store.g.dart';
 
 class NewClassroomStore = _NewClassroomStoreBase with _$NewClassroomStore;
 
 abstract class _NewClassroomStoreBase with Store {
+  static const MAX_CLASSROOM_ROUTINES_COUNT = 50;
+
   ///
   /// [classroom] is an instance of existing Classroom for editing
-  /// [asanas] is a full list of [AsanaModel] from [AsanasStore]
+  /// [allAsanas] is a full list of [AsanaModel] from [AsanasStore]
   ///
-  _NewClassroomStoreBase.withClassroom(ClassroomModel classroom, BuiltList<AsanaModel> asanas)
+  _NewClassroomStoreBase.withClassroom(ClassroomModel classroom)
       : assert(classroom != null),
         editableClassroom = classroom {
-    selectedAsanas = selectedAsanas.rebuild(
-      (b) => b.addAll(classroom.asanasUniqueNames.map(
-        (name) => asanas.singleWhere((asana) => asana.uniqueName == name),
-      )),
-    );
+    assert(editableClassroom.classroomRoutines.isNotEmpty);
+
+    formIntervalDuration = editableClassroom.durationBetweenAsanas;
+    formTitle = editableClassroom.title;
+    formDescription = editableClassroom.description;
+
+    classroomRoutines =
+        ListBuilder<ClassroomRoutineModel>(editableClassroom.classroomRoutines).build();
   }
 
   _NewClassroomStoreBase();
 
   String formTitle;
   String formDescription;
-  int formTimeInterval;
+  Duration formIntervalDuration = ClassroomModel.DEFAULT_DURATION_BETWEEN_ASANAS;
 
   @observable
   ClassroomModel editableClassroom;
 
   @observable
-  BuiltList<AsanaModel> selectedAsanas = BuiltList<AsanaModel>.of([]);
-
-  @computed
-  int get countOfSelectedAsanas => selectedAsanas.length;
+  BuiltList<ClassroomRoutineModel> classroomRoutines = BuiltList<ClassroomRoutineModel>.of([]);
 
   @action
-  void selectAsana(AsanaModel asana) {
-    if (selectedAsanas.contains(asana)) {
+  void addRoutineToClassroomWithAsana(AsanaModel asana) {
+    if (classroomRoutines.length >= MAX_CLASSROOM_ROUTINES_COUNT) {
+      // TODO: Show snackbar
+      Log.info('Max classroom routines count reached');
+
       return;
     }
 
-    selectedAsanas = selectedAsanas.rebuild((b) => b.add(asana));
+    final classroomRoutine = ClassroomRoutineModel(
+      asanaUniqueName: asana.uniqueName,
+      asanaDuration: ClassroomRoutineModel.DEFAULT_ASANA_DURATION,
+    );
+
+    classroomRoutines = classroomRoutines.rebuild((b) => b.add(classroomRoutine));
   }
 
   @action
-  void deselectAsana(AsanaModel asana) {
-    selectedAsanas = selectedAsanas.rebuild((b) => b.remove(asana));
+  void updateRoutineDuration(ClassroomRoutineModel classroomRoutine, Duration newDuration) {
+    final indexOfRoutine = classroomRoutines.indexOf(classroomRoutine);
+    if (indexOfRoutine == -1) {
+      return;
+    }
+
+    final newRoutine = ClassroomRoutineModel(
+      uid: classroomRoutine.uid,
+      asanaUniqueName: classroomRoutine.asanaUniqueName,
+      asanaDuration: newDuration,
+    );
+
+    classroomRoutines = classroomRoutines.rebuild((b) => b[indexOfRoutine] = newRoutine);
   }
 
   @action
-  void reorderSelectedAsana(int fromIndex, int toIndex) {
-    final asana = selectedAsanas[fromIndex];
-    if (asana == null) {
+  void removeRoutineFromClassroom(ClassroomRoutineModel classroomRoutine) {
+    classroomRoutines = classroomRoutines.rebuild((b) => b.remove(classroomRoutine));
+  }
+
+  @action
+  void reorderClassroomRoutine(int fromIndex, int toIndex) {
+    if (classroomRoutines.length < 2) {
+      return;
+    }
+
+    final routine = classroomRoutines[fromIndex];
+    if (routine == null) {
       return;
     }
 
@@ -62,10 +94,9 @@ abstract class _NewClassroomStoreBase with Store {
       toIndex -= 1;
     }
 
-    selectedAsanas = selectedAsanas.rebuild((b) =>
-    b
+    classroomRoutines = classroomRoutines.rebuild((b) => b
       ..removeAt(fromIndex)
-      ..insert(toIndex, asana));
+      ..insert(toIndex, routine));
   }
 
   ///
@@ -74,44 +105,29 @@ abstract class _NewClassroomStoreBase with Store {
   @action
   void saveForm() {
     // TODO: Add validation
+    final description = formDescription?.trim();
 
     ClassroomModel newClassroom;
-
-    // FIXME: Warning! I should start using built_value in this project
-    /// Comment: Why i did it?
-    /// Because instance of class List<String> in [asanasUniqueNames] property of [ClassroomModel]
-    /// are passing by reference (Surprise!)
-    final asanasUniqueNames = selectedAsanas
-        .map<String>((asana) => asana.uniqueName)
-        .toList(growable: false);
 
     if (editableClassroom != null) {
       newClassroom = ClassroomModel(
         id: editableClassroom.id,
         title: formTitle ?? editableClassroom.title,
-        description: formDescription ?? editableClassroom.description,
-        asanasUniqueNames: asanasUniqueNames,
+        description: description ?? editableClassroom.description,
         coverImage: editableClassroom.coverImage,
         isPredefined: editableClassroom.isPredefined,
-        timeBetweenAsanas: formTimeInterval ?? editableClassroom.timeBetweenAsanas,
+        timeBetweenAsanas: formIntervalDuration.inSeconds,
+        classroomRoutines: classroomRoutines.toList(growable: false),
       );
     } else {
       newClassroom = ClassroomModel(
         title: formTitle,
-        description: formDescription,
-        timeBetweenAsanas: formTimeInterval,
-        asanasUniqueNames: asanasUniqueNames,
+        description: description,
+        timeBetweenAsanas: formIntervalDuration.inSeconds,
+        classroomRoutines: classroomRoutines.toList(growable: false),
       );
     }
 
-    //_addSelectedAsanasToClassroom(newClassroom);
     editableClassroom = newClassroom;
-  }
-
-  void _addSelectedAsanasToClassroom(ClassroomModel classroom) {
-    // TODO: Make clone or immutable update
-    classroom.asanasUniqueNames
-      ..clear()
-      ..addAll(selectedAsanas.map((asana) => asana.uniqueName));
   }
 }

@@ -7,6 +7,12 @@
     "isPredefined": true,
     "asanasUniqueNames": [
       "lotus"
+    ],
+    "classroomRoutines": [
+      {
+        "asanaUniqueName": "lotus",
+        "asanaDuration": 260
+      }
     ]
   },
   {
@@ -19,6 +25,20 @@
       "plank",
       "warrior_one_right",
       "warrior_one_left"
+    ],
+    "classroomRoutines": [
+      {
+        "asanaUniqueName": "plank",
+        "asanaDuration": 30
+      },
+      {
+        "asanaUniqueName": "warrior_one_right",
+        "asanaDuration": 45
+      },
+      {
+        "asanaUniqueName": "warrior_one_left",
+        "asanaDuration": 120
+      }
     ]
   },
   {
@@ -31,6 +51,20 @@
       "dog_down",
       "plank",
       "lotus"
+    ],
+    "classroomRoutines": [
+      {
+        "asanaUniqueName": "dog_down",
+        "asanaDuration": 30
+      },
+      {
+        "asanaUniqueName": "plank",
+        "asanaDuration": 40
+      },
+      {
+        "asanaUniqueName": "lotus",
+        "asanaDuration": 120
+      }
     ]
   }
 ]

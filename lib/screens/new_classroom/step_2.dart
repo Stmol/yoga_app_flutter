@@ -1,7 +1,10 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:my_yoga_fl/stores/new_classroom_store.dart';
 import 'package:my_yoga_fl/widgets/button.dart';
+import 'package:my_yoga_fl/widgets/duration_picker.dart';
+import '../../extensions/duration_extensions.dart';
 
 class NewClassroomStep2Screen extends StatelessWidget {
   final NewClassroomStore newClassroomStore;
@@ -28,7 +31,7 @@ class NewClassroomStep2Screen extends StatelessWidget {
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
-          "Новый класс",
+          'Новый класс',
           style: Theme.of(context).textTheme.title,
         ),
       ),
@@ -82,7 +85,7 @@ class _NewClassroomStep2Content extends StatelessWidget {
                 color: Colors.grey,
                 size: 32,
               ),
-              Text("Добавить изображение"),
+              Text('Добавить изображение'),
             ],
           ),
         ),
@@ -112,29 +115,23 @@ class _NewClassroomFormState extends State<NewClassroomForm> {
   final descriptionController = TextEditingController();
   final timeIntervalController = TextEditingController();
 
+  NewClassroomStore get store => widget.store;
+
   @override
   void initState() {
     super.initState();
 
     titleController.addListener(() {
-      widget.store.formTitle = titleController.text;
-    });
-
-    timeIntervalController.addListener(() {
-      widget.store.formTimeInterval = _formatTimeIntervalToSeconds(timeIntervalController.text);
+      store.formTitle = titleController.text;
     });
 
     descriptionController.addListener(() {
-      widget.store.formDescription = descriptionController.text;
+      store.formDescription = descriptionController.text;
     });
 
-    final existingClassroom = widget.store.editableClassroom;
-    if (existingClassroom != null) {
-      titleController.text = existingClassroom.title ?? '';
-      descriptionController.text = existingClassroom.description ?? '';
-    }
-
-    timeIntervalController.text = "0:30"; // TODO: Add time interval to Classroom form
+    titleController.text = store.formTitle;
+    descriptionController.text = store.formDescription;
+    timeIntervalController.text = store.formIntervalDuration.toTimeString();
   }
 
   @override
@@ -146,17 +143,10 @@ class _NewClassroomFormState extends State<NewClassroomForm> {
     super.dispose();
   }
 
-  int _formatTimeIntervalToSeconds(String text) {
-    final List<String> parts = text.split(":"); // FIXME Out of a range
-    final duration = Duration(minutes: int.parse(parts[0]), seconds: int.parse(parts[1]));
-
-    return duration.inSeconds;
-  }
-
   void _submitForm() {
     FocusScope.of(context).unfocus();
 
-    widget.store.saveForm();
+    store.saveForm();
     widget.onSubmit();
   }
 
@@ -169,7 +159,7 @@ class _NewClassroomFormState extends State<NewClassroomForm> {
           maxLines: 1,
           maxLength: 50,
           decoration: const InputDecoration(
-            labelText: "Название",
+            labelText: 'Название',
             border: const OutlineInputBorder(),
             counter: const Offstage(),
           ),
@@ -181,7 +171,7 @@ class _NewClassroomFormState extends State<NewClassroomForm> {
           minLines: 1,
           maxLength: 150,
           decoration: const InputDecoration(
-            labelText: "Описание",
+            labelText: 'Описание',
             border: const OutlineInputBorder(),
             counter: const Offstage(),
           ),
@@ -189,27 +179,38 @@ class _NewClassroomFormState extends State<NewClassroomForm> {
         SizedBox(height: 15),
         TextFormField(
           controller: timeIntervalController,
-          keyboardType: TextInputType.number,
-          enabled: false,
+          readOnly: true,
           decoration: const InputDecoration(
-            labelText: "Пауза между позами",
+            labelText: 'Пауза между позами',
             border: const OutlineInputBorder(),
             counter: const Offstage(),
           ),
           inputFormatters: [
             WhitelistingTextInputFormatter.digitsOnly,
           ],
+          onTap: () {
+            showCupertinoModalPopup(context: context, builder: (_) {
+              return DurationPicker(
+                title: 'Пауза между позами',
+                initialDuration: store.formIntervalDuration,
+                onSave: (duration) {
+                  timeIntervalController.text = duration.toTimeString();
+                  store.formIntervalDuration = duration;
+                },
+              );
+            });
+          },
         ),
         SizedBox(height: 15),
 //        Text(
-//          "Напоминания",
+//          'Напоминания',
 //          style: Theme.of(context).textTheme.caption,
 //        ),
 //        SizedBox(height: 15),
         SizedBox(
           width: double.infinity,
           child: Button(
-            title: "Сохранить",
+            title: 'Сохранить',
             onPressed: _submitForm,
           ),
         ),

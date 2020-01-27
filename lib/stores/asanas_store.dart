@@ -13,25 +13,33 @@ class AsanasStore = AsanasStoreBase with _$AsanasStore;
 
 abstract class AsanasStoreBase with Store {
   @observable
-  BuiltList<AsanaModel> asanas = BuiltList.of([]);
+  BuiltMap<String, AsanaModel> asanas = BuiltMap<String, AsanaModel>.from({});
+
+  @computed
+  BuiltList<AsanaModel> get sortedAsanasList {
+    final list = asanas.entries.map((m) => m.value).toList()
+      ..sort((a, b) => a.title.compareTo(b.title));
+
+    return list.toBuiltList();
+  }
 
   @action
-  Future<void> initAsanas() async {
+  Future<void> init() async {
     await _loadAsanas();
   }
 
   List<AsanaModel> getAsanasInClassroom(ClassroomModel classroom) {
-    if (classroom.asanasUniqueNames.isEmpty) {
+    if (classroom.classroomRoutines.isEmpty) {
       return [];
     }
 
-    final classroomAsanas = classroom.asanasUniqueNames.map<AsanaModel>((uniqueName) {
-      return asanas.singleWhere((a) => a.uniqueName == uniqueName, orElse: () => null);
+    final classroomAsanas = classroom.classroomRoutines.map<AsanaModel>((routine) {
+      return asanas[routine.asanaUniqueName];
     }).toList();
 
     classroomAsanas.removeWhere((a) => a == null);
 
-    return classroomAsanas;
+    return classroomAsanas.toList(growable: false);
   }
 
   // TODO: Delete | Warning: don't use it!
@@ -42,16 +50,15 @@ abstract class AsanasStoreBase with Store {
   Future<void> _loadAsanas() async {
     Log.debug('Load asanas from JSON');
 
+    final map = Map<String, AsanaModel>.from({});
+
     await _loadAsanasFromJSON().then(
-          (list) =>
-      asanas = asanas.rebuild(
-            (b) =>
-        b
-          ..clear()
-          ..addAll(list)
-          ..sort((a, b) => a.title.compareTo(b.title)),
-      ),
+      (asanaModels) => asanaModels.forEach((model) {
+        map[model.uniqueName] = model;
+      }),
     );
+
+    asanas = MapBuilder<String, AsanaModel>(map).build();
   }
 
   Future<List<AsanaModel>> _loadAsanasFromJSON() async {
