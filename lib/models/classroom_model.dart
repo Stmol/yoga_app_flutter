@@ -32,9 +32,28 @@ class ClassroomModel {
       : Duration.zero;
 
   // TODO: Memo
-  Duration get totalDuration => classroomRoutines.fold(durationBetweenAsanas, (prev, el) {
-    return prev + (el.asanaDuration ?? Duration.zero);
-  });
+  Duration get totalDuration {
+    final asanasWithDurations = classroomRoutines.where((r) => r.asanaDuration != null);
+    if (asanasWithDurations.isEmpty) {
+      return Duration.zero;
+    }
+
+    // Calculate "blinks" between timers, e.g. 00:00->00:30 (is a 1 sec)
+    final zeroSecondsInPlayer = timeBetweenAsanas > 0
+        ? (asanasWithDurations.length - 1) * 2
+        : asanasWithDurations.length - 1;
+
+    final pausesDuration = Duration(
+      seconds: zeroSecondsInPlayer + ((asanasWithDurations.length - 1) * timeBetweenAsanas),
+    );
+
+    // +1 seconds from last asana to finish "blink"
+    final totalNoneAsanasDuration = pausesDuration + Duration(seconds: 1);
+
+    return asanasWithDurations.fold(totalNoneAsanasDuration, (prev, el) {
+      return prev + el.asanaDuration;
+    });
+  }
 
   ClassroomModel({
     String id,
