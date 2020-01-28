@@ -1,0 +1,70 @@
+[
+  {
+    "title": "Медитация",
+    "description": "Этот класс содержит всего одну асану, позу \"лотуса\" для практики медитации в неподвижном состоянии",
+    "coverImage": null,
+    "timeBetweenAsanas": 10,
+    "isPredefined": true,
+    "asanasUniqueNames": [
+      "lotus"
+    ],
+    "classroomRoutines": [
+      {
+        "asanaUniqueName": "lotus",
+        "asanaDuration": 260
+      }
+    ]
+  },
+  {
+    "title": "Для бодрости",
+    "description": "Рекомендуем выполнять утром после пробуждения",
+    "coverImage": null,
+    "timeBetweenAsanas": 10,
+    "isPredefined": true,
+    "asanasUniqueNames": [
+      "plank",
+      "warrior_one_right",
+      "warrior_one_left"
+    ],
+    "classroomRoutines": [
+      {
+        "asanaUniqueName": "cobra",
+        "asanaDuration": 30
+      },
+      {
+        "asanaUniqueName": "butterfly",
+        "asanaDuration": 45
+      },
+      {
+        "asanaUniqueName": "spin_half_lotus",
+        "asanaDuration": 120
+      }
+    ]
+  },
+  {
+    "title": "Для молодых мам",
+    "description": "",
+    "coverImage": null,
+    "timeBetweenAsanas": 10,
+    "isPredefined": true,
+    "asanasUniqueNames": [
+      "dog_down",
+      "plank",
+      "lotus"
+    ],
+    "classroomRoutines": [
+      {
+        "asanaUniqueName": "triangle2",
+        "asanaDuration": 30
+      },
+      {
+        "asanaUniqueName": "camel",
+        "asanaDuration": 40
+      },
+      {
+        "asanaUniqueName": "chair",
+        "asanaDuration": 120
+      }
+    ]
+  }
+]
