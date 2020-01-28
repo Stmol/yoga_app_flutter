@@ -12,17 +12,20 @@ mixin _$PlayerStore on PlayerStoreBase, Store {
   Computed<bool> _$isFinishedComputed;
 
   @override
-  bool get isFinished => (_$isFinishedComputed ??= Computed<bool>(() => super.isFinished)).value;
+  bool get isFinished =>
+      (_$isFinishedComputed ??= Computed<bool>(() => super.isFinished)).value;
   Computed<bool> _$isSkipEnabledComputed;
 
   @override
   bool get isSkipEnabled =>
-      (_$isSkipEnabledComputed ??= Computed<bool>(() => super.isSkipEnabled)).value;
+      (_$isSkipEnabledComputed ??= Computed<bool>(() => super.isSkipEnabled))
+          .value;
   Computed<bool> _$isRewindEnabledComputed;
 
   @override
-  bool get isRewindEnabled =>
-      (_$isRewindEnabledComputed ??= Computed<bool>(() => super.isRewindEnabled)).value;
+  bool get isRewindEnabled => (_$isRewindEnabledComputed ??=
+          Computed<bool>(() => super.isRewindEnabled))
+      .value;
   Computed<PlayerPhase> _$playerPhaseComputed;
 
   @override
@@ -76,11 +79,13 @@ mixin _$PlayerStore on PlayerStoreBase, Store {
     }, _$totalTimerAtom, name: '${_$totalTimerAtom.name}_set');
   }
 
-  final _$_currentQueueItemIndexAtom = Atom(name: 'PlayerStoreBase._currentQueueItemIndex');
+  final _$_currentQueueItemIndexAtom =
+      Atom(name: 'PlayerStoreBase._currentQueueItemIndex');
 
   @override
   int get _currentQueueItemIndex {
-    _$_currentQueueItemIndexAtom.context.enforceReadPolicy(_$_currentQueueItemIndexAtom);
+    _$_currentQueueItemIndexAtom.context
+        .enforceReadPolicy(_$_currentQueueItemIndexAtom);
     _$_currentQueueItemIndexAtom.reportObserved();
     return super._currentQueueItemIndex;
   }
@@ -90,14 +95,17 @@ mixin _$PlayerStore on PlayerStoreBase, Store {
     _$_currentQueueItemIndexAtom.context.conditionallyRunInAction(() {
       super._currentQueueItemIndex = value;
       _$_currentQueueItemIndexAtom.reportChanged();
-    }, _$_currentQueueItemIndexAtom, name: '${_$_currentQueueItemIndexAtom.name}_set');
+    }, _$_currentQueueItemIndexAtom,
+        name: '${_$_currentQueueItemIndexAtom.name}_set');
   }
 
-  final _$currentTimerDurationAtom = Atom(name: 'PlayerStoreBase.currentTimerDuration');
+  final _$currentTimerDurationAtom =
+      Atom(name: 'PlayerStoreBase.currentTimerDuration');
 
   @override
   Duration get currentTimerDuration {
-    _$currentTimerDurationAtom.context.enforceReadPolicy(_$currentTimerDurationAtom);
+    _$currentTimerDurationAtom.context
+        .enforceReadPolicy(_$currentTimerDurationAtom);
     _$currentTimerDurationAtom.reportObserved();
     return super.currentTimerDuration;
   }
@@ -107,10 +115,12 @@ mixin _$PlayerStore on PlayerStoreBase, Store {
     _$currentTimerDurationAtom.context.conditionallyRunInAction(() {
       super.currentTimerDuration = value;
       _$currentTimerDurationAtom.reportChanged();
-    }, _$currentTimerDurationAtom, name: '${_$currentTimerDurationAtom.name}_set');
+    }, _$currentTimerDurationAtom,
+        name: '${_$currentTimerDurationAtom.name}_set');
   }
 
-  final _$PlayerStoreBaseActionController = ActionController(name: 'PlayerStoreBase');
+  final _$PlayerStoreBaseActionController =
+      ActionController(name: 'PlayerStoreBase');
 
   @override
   void pausePlayer() {
