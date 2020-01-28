@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_yoga_fl/assets.dart';
 import 'package:my_yoga_fl/models/asana_model.dart';
 import 'package:my_yoga_fl/widgets/button.dart';
 
@@ -32,7 +33,7 @@ class AsanaScreen extends StatelessWidget {
           _asanaModel.title,
           style: Theme.of(context).textTheme.title,
         ),
-        actions: <Widget>[
+        actions: [
           IconButton(
             icon: Icon(Icons.star_border, color: Colors.yellow[700]),
             onPressed: () {},
@@ -52,7 +53,7 @@ class _AsanaScreen extends StatelessWidget {
   Widget _getTextBlock(BuildContext context, String title, String text, Color titleColor) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
+      children: [
         Container(
           padding: EdgeInsets.symmetric(horizontal: 3, vertical: 2),
           color: titleColor,
@@ -77,24 +78,24 @@ class _AsanaScreen extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: ListView(
-        children: <Widget>[
-          Image.asset('assets/images/asana_screen.png'), // TODO: Get image from model
+        children: [
+          Image.asset(ImageAssets.asanaCoverImage), // TODO: Get image from model
           SizedBox(height: 15),
           Button(
-            title: 'Добавить в тренировку',
-            onPressed: () {},
+            'Добавить в тренировку',
+            onTap: null,
           ),
           SizedBox(height: 15),
           _getTextBlock(
             context,
-            "Как выполнять?",
+            'Как выполнять?',
             asanaModel.description,
             Colors.tealAccent[200],
           ),
           SizedBox(height: 15),
           _getTextBlock(
             context,
-            "Чего опасаться?",
+            'Чего опасаться?',
             asanaModel.warnings,
             Colors.yellowAccent[200],
           ),

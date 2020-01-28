@@ -7,19 +7,14 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mobx/mobx.dart';
+import 'package:my_yoga_fl/assets.dart';
 import 'package:my_yoga_fl/extensions/duration_extensions.dart';
 import 'package:my_yoga_fl/models/asana_model.dart';
 import 'package:my_yoga_fl/models/classroom_model.dart';
+import 'package:my_yoga_fl/stores/asanas_store.dart';
 import 'package:my_yoga_fl/stores/player_store.dart';
-
-Color kAccentGrey = Colors.grey.shade700;
-Color kShadedGrey = Colors.grey.shade300;
-
-const Color kControlsIconColor = Color(0xFF3C3C59);
-const Color kControlsLightGrey = Color(0xFFF1F1F4);
-
-const Color kTimerActive = Color(0xFF405DC3);
-const Color kTimerPause = Color(0xFFA52A22);
+import 'package:my_yoga_fl/styles.dart';
+import 'package:provider/provider.dart';
 
 class PlayerMainScreen extends StatelessWidget {
   final ClassroomModel classroom;
@@ -35,7 +30,7 @@ class PlayerMainScreen extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(50),
-        color: kAccentGrey,
+        color: Styles.accentGreyColor,
       ),
       padding: EdgeInsets.symmetric(horizontal: 10, vertical: 3),
       child: Observer(
@@ -155,20 +150,15 @@ class _PlayerMainScreenContentState extends State<_PlayerMainScreenContent> {
 
     // Auto scroll to current asana inside asanas queue
     _asanasInQueueBarAutoScrollReaction = reaction(
-      (_) => store.currentAsana,
-      (asana) {
-        final index = store.asanasInClassroom.indexOf(asana);
-        if (index == -1) {
-          return;
-        }
-
-        final hash = _getHashForAsanaInQueueBar(asana, index);
+      (_) => store.currentAsanaBlockIndex,
+      (index) {
+        final hash = _getHashForAsanaInQueueBar(store.currentAsanaUniqueName, index);
         if (asanasKeysInQueueBar.containsKey(hash) == false) {
           return;
         }
 
         final globalKey = asanasKeysInQueueBar[hash];
-        // FIXME: Have to do [ensureVisible] only for invisible items
+        // FIXME: Have to do autoscroll only for invisible items
         Scrollable.ensureVisible(
           globalKey.currentContext,
           duration: Duration(milliseconds: 500),
@@ -180,7 +170,7 @@ class _PlayerMainScreenContentState extends State<_PlayerMainScreenContent> {
   }
 
   Widget _queueAsanasBarItem(AsanaModel asana, int index, bool isLast) {
-    final hash = _getHashForAsanaInQueueBar(asana, index);
+    final hash = _getHashForAsanaInQueueBar(asana.uniqueName, index);
     asanasKeysInQueueBar[hash] = GlobalKey(); // TODO: Fill the map in initial method?
 
     return Observer(
@@ -194,15 +184,18 @@ class _PlayerMainScreenContentState extends State<_PlayerMainScreenContent> {
                 border: Border(
                   bottom: BorderSide(
                     width: 3,
-                    color: asana == store.currentAsana ? kAccentGrey : kShadedGrey,
+                    color: index == store.currentAsanaBlockIndex
+                        ? Styles.accentGreyColor
+                        : Styles.shadedGreyColor,
                   ),
                 ),
               ),
               child: Image.asset(
-                'assets/images/asana_screen.png',
+                ImageAssets.asanaCoverImage,
                 //fit: BoxFit.fill,
                 color: Colors.grey,
-                colorBlendMode: asana == store.currentAsana ? BlendMode.dst : BlendMode.saturation,
+                colorBlendMode:
+                    index == store.currentAsanaBlockIndex ? BlendMode.dst : BlendMode.saturation,
               ),
             ),
           ),
@@ -213,17 +206,19 @@ class _PlayerMainScreenContentState extends State<_PlayerMainScreenContent> {
   }
 
   Widget _queueAsanasBar(BuildContext context) {
-    if (store.asanasInClassroom.isEmpty) {
-      return Container(height: 50); // TODO: Empty list
-    }
+    final asanasStore = Provider.of<AsanasStore>(context, listen: false);
 
     return ListView.builder(
       controller: asanasProgressScrollController,
-      itemCount: store.asanasInClassroom.length,
+      itemCount: store.asanasUniqueNamesInQueue.length,
       scrollDirection: Axis.horizontal,
       itemBuilder: (context, index) {
-        final asana = store.asanasInClassroom[index];
-        final isLast = (store.asanasInClassroom.length - 1) == index;
+        final asana = asanasStore.asanas[store.currentAsanaUniqueName];
+        final isLast = (store.asanasUniqueNamesInQueue.length - 1) == index;
+        
+        if (asana == null) {
+            return SizedBox.shrink();
+        }
 
         return _queueAsanasBarItem(asana, index, isLast);
       },
@@ -246,54 +241,61 @@ class _PlayerMainScreenContentState extends State<_PlayerMainScreenContent> {
           )
         ],
       ),
-      child: Column(
-        children: [
-          Expanded(
-            child: Image.asset('assets/images/asana_screen.png'),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 10, right: 10, bottom: 5),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Observer(
-                  builder: (_) => Expanded(
-                    child: Wrap(
-                      spacing: 5,
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      children: [
-                        FittedBox(
-                          child: Text(
-                            store.currentAsana.title,
+      child: Consumer<AsanasStore>(builder: (_, asanasStore, __) {
+        return Observer(builder: (_) {
+          final asana = asanasStore.asanas[store.currentAsanaUniqueName];
+          if (asana == null) {
+            return SizedBox.shrink();
+          }
+
+          return Column(
+            children: [
+              Expanded(
+                child: Image.asset(ImageAssets.asanaCoverImage),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 10, right: 10, bottom: 5),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Expanded(
+                      child: Wrap(
+                        spacing: 5,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          FittedBox(
+                            child: Text(
+                              asana.title,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: GoogleFonts.pTSans(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 22,
+                              ),
+                            ),
+                          ),
+                          Text(
+                            asana.hindiTitle ?? '',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: GoogleFonts.pTSans(
-                              fontWeight: FontWeight.w700,
-                              fontSize: 22,
+                              fontWeight: FontWeight.w500,
+                              fontSize: 16,
+                              color: Colors.grey[400],
                             ),
                           ),
-                        ),
-                        Text(
-                          store.currentAsana.hindiTitle ?? '',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.pTSans(
-                            fontWeight: FontWeight.w500,
-                            fontSize: 16,
-                            color: Colors.grey[400],
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
+                    Icon(Icons.info_outline, color: Styles.accentGreyColor),
+                  ],
                 ),
-                Icon(Icons.info_outline, color: kAccentGrey),
-              ],
-            ),
-          )
-        ],
-      ),
+              )
+            ],
+          );
+        });
+      }),
     );
   }
 
@@ -307,7 +309,9 @@ class _PlayerMainScreenContentState extends State<_PlayerMainScreenContent> {
             textAlign: TextAlign.center,
             style: GoogleFonts.montserrat(
               letterSpacing: 3,
-              color: store.playerPhase == PlayerPhase.asana ? kTimerActive : kTimerPause,
+              color: [PlayerPhase.asana, PlayerPhase.begin].contains(store.playerPhase)
+                  ? Styles.timerActiveColor
+                  : Styles.timerPauseColor,
               fontSize: 64,
               fontWeight: FontWeight.w800,
             ),
@@ -343,12 +347,12 @@ class _PlayerMainScreenContentState extends State<_PlayerMainScreenContent> {
           child: Container(
             padding: EdgeInsets.fromLTRB(0, 0, 45, 0),
             decoration: BoxDecoration(
-              border: Border.all(color: kControlsLightGrey, width: 6),
+              border: Border.all(color: Styles.controlsLightGreyColor, width: 6),
               borderRadius: playerButtonBorderRadius,
             ),
             child: Icon(
               Icons.refresh,
-              color: kControlsIconColor,
+              color: Styles.controlsIconColor,
               size: playerButtonIconSize,
             ),
           ),
@@ -369,12 +373,12 @@ class _PlayerMainScreenContentState extends State<_PlayerMainScreenContent> {
           child: Container(
             padding: EdgeInsets.fromLTRB(45, 0, 0, 0),
             decoration: BoxDecoration(
-              border: Border.all(color: kControlsLightGrey, width: 6),
+              border: Border.all(color: Styles.controlsLightGreyColor, width: 6),
               borderRadius: playerButtonBorderRadius,
             ),
             child: Icon(
               Icons.fast_forward,
-              color: kControlsIconColor,
+              color: Styles.controlsIconColor,
               size: playerButtonIconSize,
             ),
           ),
@@ -411,8 +415,8 @@ class _PlayerMainScreenContentState extends State<_PlayerMainScreenContent> {
     );
   }
 
-  String _getHashForAsanaInQueueBar(AsanaModel asana, int indexInQueue) {
-    return '${asana.uniqueName}-$indexInQueue';
+  String _getHashForAsanaInQueueBar(String asanaUniqueName, int indexInQueue) {
+    return '$asanaUniqueName-$indexInQueue';
   }
 
   @override
@@ -502,6 +506,7 @@ class PlayerPlayButton extends StatefulWidget {
 }
 
 class _PlayerPlayButtonState extends State<PlayerPlayButton> with SingleTickerProviderStateMixin {
+  // TODO: Move colors to [Styles]
   final Color _bgColor = Color(0xFFF1F1F4);
   final Color _bgTappedColor = Color(0xFFBEBEC1);
 

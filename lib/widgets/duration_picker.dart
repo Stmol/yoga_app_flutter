@@ -79,7 +79,6 @@ class _DurationPickerState extends State<DurationPicker> {
                     child: CupertinoTimerPicker(
                       mode: CupertinoTimerPickerMode.ms,
                       backgroundColor: Colors.white,
-                      alignment: Alignment.centerRight,
                       initialTimerDuration: widget.initialDuration,
                       onTimerDurationChanged: (duration) {
                         setState(() => _currentDuration = duration);

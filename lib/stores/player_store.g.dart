@@ -27,12 +27,20 @@ mixin _$PlayerStore on PlayerStoreBase, Store {
 
   @override
   PlayerPhase get playerPhase =>
-      (_$playerPhaseComputed ??= Computed<PlayerPhase>(() => super.playerPhase)).value;
-  Computed<AsanaModel> _$currentAsanaComputed;
+      (_$playerPhaseComputed ??= Computed<PlayerPhase>(() => super.playerPhase))
+          .value;
+  Computed<int> _$currentAsanaBlockIndexComputed;
 
   @override
-  AsanaModel get currentAsana =>
-      (_$currentAsanaComputed ??= Computed<AsanaModel>(() => super.currentAsana)).value;
+  int get currentAsanaBlockIndex => (_$currentAsanaBlockIndexComputed ??=
+          Computed<int>(() => super.currentAsanaBlockIndex))
+      .value;
+  Computed<String> _$currentAsanaUniqueNameComputed;
+
+  @override
+  String get currentAsanaUniqueName => (_$currentAsanaUniqueNameComputed ??=
+          Computed<String>(() => super.currentAsanaUniqueName))
+      .value;
 
   final _$isPlayingAtom = Atom(name: 'PlayerStoreBase.isPlaying');
 

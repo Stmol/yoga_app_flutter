@@ -14,7 +14,7 @@ ClassroomModel _$ClassroomModelFromJson(Map<String, dynamic> json) {
     classroomRoutines: (json['classroomRoutines'] as List)
         ?.map((e) => e == null
             ? null
-            : ClassroomRoutineModel.fromJSON(e as Map<String, dynamic>))
+            : ClassroomRoutineModel.fromJson(e as Map<String, dynamic>))
         ?.toList(),
     timeBetweenAsanas: json['timeBetweenAsanas'] as int,
     isPredefined: json['isPredefined'] as bool,
@@ -29,5 +29,5 @@ Map<String, dynamic> _$ClassroomModelToJson(ClassroomModel instance) =>
       'timeBetweenAsanas': instance.timeBetweenAsanas,
       'isPredefined': instance.isPredefined,
       'classroomRoutines':
-          instance.classroomRoutines?.map((e) => e?.toJSON())?.toList(),
+          instance.classroomRoutines?.map((e) => e?.toJson())?.toList(),
     };

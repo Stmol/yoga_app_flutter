@@ -210,8 +210,8 @@ class _NewClassroomFormState extends State<NewClassroomForm> {
         SizedBox(
           width: double.infinity,
           child: Button(
-            title: 'Сохранить',
-            onPressed: _submitForm,
+            'Сохранить',
+            onTap: _submitForm,
           ),
         ),
       ],

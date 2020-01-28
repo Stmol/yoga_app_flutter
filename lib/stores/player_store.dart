@@ -1,25 +1,22 @@
 import 'dart:async';
 
-import 'package:built_collection/built_collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
-import 'package:my_yoga_fl/models/asana_model.dart';
+import 'package:my_yoga_fl/models/classroom_model.dart';
 import 'package:my_yoga_fl/utils/ticker.dart';
 import 'package:wakelock/wakelock.dart';
-import '../extensions/duration_extensions.dart';
 
 part 'player_store.g.dart';
 
 class PlayerStore = PlayerStoreBase with _$PlayerStore;
 
 abstract class PlayerStoreBase with Store {
-  static const ASANA_DURATION = Duration(seconds: 3);
-  static const BEGIN_DURATION = Duration(seconds: 2);
-  static const CHILL_DURATION = Duration(seconds: 2);
+  static const BEGIN_DURATION = Duration(seconds: 3);
 
-  PlayerStoreBase(List<AsanaModel> asanasInClassroom)
-      : assert(asanasInClassroom.isNotEmpty),
-        this.asanasInClassroom = BuiltList<AsanaModel>.from(asanasInClassroom) {
+  PlayerStoreBase(ClassroomModel classroom)
+      : assert(classroom != null),
+        assert(classroom.classroomRoutines.isNotEmpty),
+        _classroom = classroom {
     _updatePlayerSubscription = _ticker.currentDuration.listen((d) => _tickCurrentTimer(d));
     _updateTotalTimerSubscription = _ticker.currentDuration.listen((d) => _tickTotalTimer(d));
 
@@ -36,6 +33,10 @@ abstract class PlayerStoreBase with Store {
     });
 
     _queueItemShiftReaction = reaction((_) => _currentQueueItemIndex, (_) {
+//      if (currentQueueItem.hasAsana) { FIXME: Better approach to switch current asana
+//        currentAsanaUName = currentQueueItem.asanaUniqueName;
+//      }
+
       if (playerPhase == PlayerPhase.finish) {
         isPlaying = false; // FIXME: Are you sure?
       }
@@ -49,7 +50,7 @@ abstract class PlayerStoreBase with Store {
     //isPlaying = true; //TODO: Auto start?
   }
 
-  BuiltList<AsanaModel> asanasInClassroom;
+  final ClassroomModel _classroom;
 
   @observable
   bool isPlaying = false;
@@ -61,7 +62,7 @@ abstract class PlayerStoreBase with Store {
   int _currentQueueItemIndex = 0;
 
   ///
-  /// Duration to display in text widget of timer
+  /// Duration to display in the text widget of timer
   ///
   @observable
   Duration currentTimerDuration = BEGIN_DURATION;
@@ -76,6 +77,11 @@ abstract class PlayerStoreBase with Store {
 
   PlayerQueueItem get currentQueueItem =>
       _currentQueueItemIndex > _queue.length - 1 ? null : _queue[_currentQueueItemIndex];
+
+  List<String> get asanasUniqueNamesInQueue => _queue
+      .where((item) => item.hasAsana)
+      .map((item) => item.asanaUniqueName)
+      .toList(growable: false);
 
   @computed
   bool get isFinished => playerPhase == PlayerPhase.finish && isPlaying == false;
@@ -96,22 +102,27 @@ abstract class PlayerStoreBase with Store {
   }
 
   @computed
-  AsanaModel get currentAsana {
-    // Skip() is here because we have to change [current asana] when chill phase appear
-    final block = _queue.skip(_currentQueueItemIndex).firstWhere(
-          (b) => b.hasAsana,
-          orElse: () => _queue.lastWhere((b) => b.hasAsana),
-        );
-
-    return block?.asana; // FIXME: Null pointer exception possible
+  int get currentAsanaBlockIndex {
+    return _queue.take(_currentQueueItemIndex).fold(0, (prevIndex, el) {
+      return el.hasAsana ? prevIndex + 1 : prevIndex;
+    });
   }
 
-//  @computed
-//  double get currentTimeInPercent {
-//    final total = _calculateTotalTimerDuration();
-//
-//    return ((total - totalTimer).inSeconds / total.inSeconds);
-//  }
+  @computed
+  String get currentAsanaUniqueName {
+    var asanasItems = _queue.where((item) => item.hasAsana).toList(growable: false);
+
+    if (currentAsanaBlockIndex >= 0 && currentAsanaBlockIndex < asanasItems.length) {
+      // TODO: You can use here .fold() method as in [currentAsanaBlockIndex]
+      return asanasItems[currentAsanaBlockIndex].asanaUniqueName;
+    }
+
+    return asanasItems.last.asanaUniqueName;
+  }
+
+  // FIXME: Use this memoized field instead [currentAsanaUniqueName] when pause blocks will be added to screen
+  //@observable
+  //String currentAsanaUName;
 
   @action
   void pausePlayer() {
@@ -136,7 +147,6 @@ abstract class PlayerStoreBase with Store {
 
     final newTime = totalTimer - Duration(seconds: 1);
     if (newTime.isNegative == false) {
-      // TODO Is it possible to set total timer to negative value? :-/
       totalTimer = newTime;
     } else {
       totalTimer = Duration.zero;
@@ -146,7 +156,6 @@ abstract class PlayerStoreBase with Store {
   @action
   void _tickCurrentTimer(Duration duration) {
     currentTimerDuration -= Duration(seconds: 1);
-    //print("Current duration: ${currentTimerDuration.printAsTimer()}");
 
     if (currentTimerDuration.isNegative == true) {
       _currentQueueItemIndex++;
@@ -199,10 +208,8 @@ abstract class PlayerStoreBase with Store {
         currentTimerDuration = BEGIN_DURATION;
         break;
       case PlayerPhase.asana:
-        currentTimerDuration = ASANA_DURATION;
-        break;
       case PlayerPhase.chill:
-        currentTimerDuration = CHILL_DURATION;
+        currentTimerDuration = currentQueueItem.duration;
         break;
       case PlayerPhase.finish:
         currentTimerDuration = Duration.zero;
@@ -236,18 +243,20 @@ abstract class PlayerStoreBase with Store {
   }
 
   List<PlayerQueueItem> _initQueue() {
-    final beginBlock = PlayerQueueItem.begin(duration: BEGIN_DURATION);
-    List<PlayerQueueItem> blocks = [beginBlock];
+    List<PlayerQueueItem> blocks = [PlayerQueueItem.begin(duration: BEGIN_DURATION)];
 
-    for (int i = 0; i < asanasInClassroom.length; i++) {
-      if (i > 0) {
-        blocks.add(PlayerQueueItem(phase: PlayerPhase.chill, duration: CHILL_DURATION));
+    for (int i = 0; i < _classroom.classroomRoutines.length; i++) {
+      if (i > 0 && _classroom.timeBetweenAsanas > 0) {
+        blocks.add(PlayerQueueItem(
+          phase: PlayerPhase.chill,
+          duration: _classroom.durationBetweenAsanas,
+        ));
       }
 
       blocks.add(PlayerQueueItem(
         phase: PlayerPhase.asana,
-        duration: ASANA_DURATION,
-        asana: asanasInClassroom[i],
+        duration: _classroom.classroomRoutines[i].asanaDuration,
+        asanaUniqueName: _classroom.classroomRoutines[i].asanaUniqueName,
       ));
     }
 
@@ -283,30 +292,31 @@ class PlayerQueueItem {
   PlayerQueueItem({
     @required this.phase,
     @required this.duration,
-    this.asana,
+    this.asanaUniqueName,
   })  : assert(phase != null),
         assert(duration != null) {
     if (phase == PlayerPhase.asana) {
-      assert(asana != null);
+      assert(asanaUniqueName != null);
+      assert(asanaUniqueName.isNotEmpty);
     }
   }
 
   const PlayerQueueItem.finish()
       : phase = PlayerPhase.finish,
         duration = Duration.zero,
-        asana = null;
+        asanaUniqueName = null;
 
   const PlayerQueueItem.begin({@required Duration duration})
       : assert(duration != null),
         phase = PlayerPhase.begin,
         duration = duration,
-        asana = null;
+        asanaUniqueName = null;
 
   final Duration duration;
   final PlayerPhase phase;
-  final AsanaModel asana;
+  final String asanaUniqueName;
 
-  bool get hasAsana => phase == PlayerPhase.asana && asana != null;
+  bool get hasAsana => phase == PlayerPhase.asana && asanaUniqueName != null;
 
   bool get isChilling => phase == PlayerPhase.chill;
 
@@ -319,8 +329,8 @@ class PlayerQueueItem {
           runtimeType == other.runtimeType &&
           duration == other.duration &&
           phase == other.phase &&
-          asana == other.asana;
+          asanaUniqueName == other.asanaUniqueName;
 
   @override
-  int get hashCode => duration.hashCode ^ phase.hashCode ^ asana.hashCode;
+  int get hashCode => duration.hashCode ^ phase.hashCode ^ asanaUniqueName.hashCode;
 }

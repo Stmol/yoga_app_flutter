@@ -139,19 +139,12 @@ class _ClassroomScreenContent extends StatelessWidget {
     return GestureDetector(
       // TODO: Change widget to MaterialButton
       onTap: () {
-        final asanasStore = Provider.of<AsanasStore>(context, listen: false);
-        final asanasInClassroom = asanasStore.getAsanasInClassroom(classroom);
-
-        if (asanasInClassroom.isEmpty) {
-          return null; // FIXME: It doesn't do button disabled
-        }
-
         Navigator.push(
           context,
           MaterialPageRoute(
             fullscreenDialog: true,
             builder: (context) {
-              final playerStore = PlayerStore(asanasInClassroom);
+              final playerStore = PlayerStore(classroom);
 
               return PlayerMainScreen(classroom: classroom, playerStore: playerStore);
             },
@@ -171,7 +164,7 @@ class _ClassroomScreenContent extends StatelessWidget {
             Icon(Icons.play_arrow),
             SizedBox(width: 5),
             Text(
-              "Начать",
+              'Начать',
               style: TextStyle(fontSize: 21, fontWeight: FontWeight.bold),
             ),
           ],

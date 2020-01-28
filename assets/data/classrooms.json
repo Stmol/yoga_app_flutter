@@ -3,7 +3,7 @@
     "title": "Медитация",
     "description": "Этот класс содержит всего одну асану, позу \"лотуса\" для практики медитации в неподвижном состоянии",
     "coverImage": null,
-    "timeBetweenAsanas": 300,
+    "timeBetweenAsanas": 10,
     "isPredefined": true,
     "asanasUniqueNames": [
       "lotus"
@@ -19,7 +19,7 @@
     "title": "Для бодрости",
     "description": "Рекомендуем выполнять утром после пробуждения",
     "coverImage": null,
-    "timeBetweenAsanas": 300,
+    "timeBetweenAsanas": 10,
     "isPredefined": true,
     "asanasUniqueNames": [
       "plank",
@@ -28,15 +28,15 @@
     ],
     "classroomRoutines": [
       {
-        "asanaUniqueName": "plank",
+        "asanaUniqueName": "cobra",
         "asanaDuration": 30
       },
       {
-        "asanaUniqueName": "warrior_one_right",
+        "asanaUniqueName": "butterfly",
         "asanaDuration": 45
       },
       {
-        "asanaUniqueName": "warrior_one_left",
+        "asanaUniqueName": "spin_half_lotus",
         "asanaDuration": 120
       }
     ]
@@ -45,7 +45,7 @@
     "title": "Для молодых мам",
     "description": "",
     "coverImage": null,
-    "timeBetweenAsanas": 300,
+    "timeBetweenAsanas": 10,
     "isPredefined": true,
     "asanasUniqueNames": [
       "dog_down",
@@ -54,15 +54,15 @@
     ],
     "classroomRoutines": [
       {
-        "asanaUniqueName": "dog_down",
+        "asanaUniqueName": "triangle2",
         "asanaDuration": 30
       },
       {
-        "asanaUniqueName": "plank",
+        "asanaUniqueName": "camel",
         "asanaDuration": 40
       },
       {
-        "asanaUniqueName": "lotus",
+        "asanaUniqueName": "chair",
         "asanaDuration": 120
       }
     ]

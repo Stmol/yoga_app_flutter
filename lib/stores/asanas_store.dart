@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:built_collection/built_collection.dart';
 import 'package:mobx/mobx.dart';
+import 'package:my_yoga_fl/assets.dart';
 import 'package:my_yoga_fl/models/asana_model.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:my_yoga_fl/models/classroom_model.dart';
@@ -62,7 +63,7 @@ abstract class AsanasStoreBase with Store {
   }
 
   Future<List<AsanaModel>> _loadAsanasFromJSON() async {
-    final jsonString = await rootBundle.loadString('assets/data/asanas.json');
+    final jsonString = await rootBundle.loadString(DataAssets.asanasJson);
     final List<dynamic> jsonDecoded = json.decode(jsonString);
 
     return jsonDecoded.map((e) => AsanaModel.fromJson(e)).toList();

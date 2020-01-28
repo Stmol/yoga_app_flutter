@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:built_collection/built_collection.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:mobx/mobx.dart';
+import 'package:my_yoga_fl/assets.dart';
 import 'package:my_yoga_fl/models/classroom_model.dart';
 import 'package:my_yoga_fl/repository/classroom_repository.dart';
 import 'package:my_yoga_fl/utils/log.dart';
@@ -101,7 +102,7 @@ abstract class ClassroomsStoreBase with Store {
 
   // FIXME: Move that logic to repository layer
   Future<List<ClassroomModel>> _loadClassroomsFromJSON() async {
-    final jsonString = await rootBundle.loadString('assets/data/classrooms.json');
+    final jsonString = await rootBundle.loadString(DataAssets.classroomsJson);
     final List<dynamic> jsonDecoded = json.decode(jsonString);
 
     return jsonDecoded.map((e) => ClassroomModel.fromJSON(e)).toList();

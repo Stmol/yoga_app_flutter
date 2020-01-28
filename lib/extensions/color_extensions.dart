@@ -1,7 +1,7 @@
 import 'package:flutter/painting.dart';
 
 // TODO: Copy-paste from SO!
-extension on Color {
+extension ColorExt on Color {
   Color darken(double amount) {
     assert(amount >= 0 && amount <= 1);
 

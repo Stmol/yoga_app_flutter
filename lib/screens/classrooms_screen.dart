@@ -240,8 +240,8 @@ class _ActiveClassesList extends StatelessWidget {
         Container(
           width: double.infinity,
           child: Button(
-            title: 'Создать свой класс',
-            onPressed: () {
+            'Создать свой класс',
+            onTap: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(

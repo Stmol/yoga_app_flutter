@@ -1,13 +1,16 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:my_yoga_fl/assets.dart';
 import 'package:my_yoga_fl/repository/classroom_repository.dart';
 import 'package:my_yoga_fl/screens/asanas_screen.dart';
 import 'package:my_yoga_fl/screens/classrooms_screen.dart';
 import 'package:my_yoga_fl/stores/asanas_store.dart';
 import 'package:my_yoga_fl/stores/classrooms_store.dart';
+import 'package:my_yoga_fl/styles.dart';
 import 'package:my_yoga_fl/utils/log.dart';
 import 'package:my_yoga_fl/widgets/button.dart';
+import 'package:package_info/package_info.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -15,21 +18,27 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // TODO: What the heck?
 
   // TODO: Find to best place for init SP
+  PackageInfo packageInfo = await PackageInfo.fromPlatform();
   SharedPreferences prefs = await SharedPreferences.getInstance();
   Log.init();
 
-  runApp(MyApp(sharedPreferences: prefs));
+  runApp(MyApp(
+    sharedPreferences: prefs,
+    appVersion: packageInfo.version,
+  ));
 }
-
-const kBrandColor = Color.fromRGBO(107, 117, 255, 1);
-const kBrandColorButtonBG = Color.fromRGBO(107, 117, 255, 0.16);
 
 const kClassroomKeyValueRepositoryKeyName = 'classrooms';
 
 class MyApp extends StatelessWidget {
   final SharedPreferences sharedPreferences;
+  final String appVersion;
 
-  MyApp({Key key, @required this.sharedPreferences}) : super(key: key);
+  MyApp({
+    Key key,
+    @required this.sharedPreferences,
+    @required this.appVersion,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +64,7 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         initialRoute: MyHomePage.routeName,
         routes: {
-          MyHomePage.routeName: (context) => MyHomePage(title: 'Yoga'),
+          MyHomePage.routeName: (context) => MyHomePage(title: 'Yoga $appVersion'),
           ClassroomsScreen.routeName: (context) => ClassroomsScreen(),
           AsanasScreen.routeName: (context) => AsanasScreen(),
         },
@@ -69,7 +78,7 @@ class MyApp extends StatelessWidget {
                 fontSize: 36,
               ),
             ),
-            button: TextStyle(color: kBrandColor, fontSize: 18),
+            button: TextStyle(color: Styles.primaryBrandColor, fontSize: 18),
             caption: GoogleFonts.pTSansCaption(
               textStyle: TextStyle(
                 color: Colors.black,
@@ -126,26 +135,27 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Padding(
         padding: const EdgeInsets.all(18.0),
         child: ListView(
-          children: <Widget>[
+          children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(5.0),
-              child: Image.asset('assets/images/yoga-bg-1.jpeg'),
+              child: Image.asset(ImageAssets.yogaBgImage),
             ),
             SizedBox(height: 30),
             Row(
-              children: <Widget>[
+              children: [
                 Expanded(
                   child: Button(
-                      title: "Асаны",
-                      onPressed: () {
-                        Navigator.pushNamed(context, AsanasScreen.routeName);
-                      }),
+                    'Асаны',
+                    onTap: () {
+                      Navigator.pushNamed(context, AsanasScreen.routeName);
+                    },
+                  ),
                 ),
                 SizedBox(width: 10),
                 Expanded(
                   child: Button(
-                    title: "Классы",
-                    onPressed: () {
+                    'Классы',
+                    onTap: () {
                       Navigator.pushNamed(context, ClassroomsScreen.routeName);
                     },
                   ),
@@ -153,16 +163,15 @@ class _MyHomePageState extends State<MyHomePage> {
               ],
             ),
             SizedBox(height: 10),
-            Button(title: "Быстрая тренировка", onPressed: () => {}),
+            Button('Быстрая тренировка', onTap: null),
             SizedBox(height: 30),
-            Button(title: "Очистить и обновить данные", onPressed: () => _clearAndRefresh(context)),
+            Button(
+              'Очистить и обновить данные',
+              style: ButtonStyle.warning,
+              onTap: () => _clearAndRefresh(context),
+            ),
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: null,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
       ),
     );
   }

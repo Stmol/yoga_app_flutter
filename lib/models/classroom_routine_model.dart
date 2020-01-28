@@ -33,20 +33,14 @@ class ClassroomRoutineModel {
         assert(asanaDuration != null),
         uid = uid ?? Uuid().v4();
 
-  ///
-  /// Decode from JSON
-  ///
-  factory ClassroomRoutineModel.fromJSON(Map<String, dynamic> json) =>
-      _$ClassroomRoutineModelFromJson(json);
-
-  ///
-  /// Encode to JSON
-  ///
-  Map<String, dynamic> toJSON() => _$ClassroomRoutineModelToJson(this);
-
   static Duration _asanaDurationFromSeconds(int seconds) => Duration(seconds: seconds);
 
   static int _asanaDurationToSeconds(Duration duration) => duration.inSeconds;
+
+  factory ClassroomRoutineModel.fromJson(Map<String, dynamic> json) =>
+      _$ClassroomRoutineModelFromJson(json);
+
+  Map<String, dynamic> toJson() => _$ClassroomRoutineModelToJson(this);
 
   @override
   bool operator ==(Object other) =>
