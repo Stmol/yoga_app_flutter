@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:my_yoga_fl/assets.dart';
 import 'package:my_yoga_fl/models/asana_model.dart';
 import 'package:my_yoga_fl/screens/new_classroom/step_2.dart';
 import 'package:my_yoga_fl/stores/asanas_store.dart';
@@ -221,6 +222,9 @@ class _ClassroomRoutineListItem extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(4),
         color: Colors.grey[300],
+        image: DecorationImage(
+          image: AssetImage(ImageAssets.asanaCoverImage),
+        ),
       ),
     );
   }
@@ -301,6 +305,9 @@ class _AsanaListItem extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(4),
         color: Colors.grey[300],
+        image: DecorationImage(
+          image: AssetImage(ImageAssets.asanaCoverImage),
+        ),
       ),
     );
   }

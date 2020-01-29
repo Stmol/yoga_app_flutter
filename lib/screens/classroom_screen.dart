@@ -213,8 +213,7 @@ class _ClassroomScreenContent extends StatelessWidget {
       '${asanasCount(classroom.classroomRoutines.length)}'
       ' • $pauseText • всего ${classroomTimeRounded(classroom.totalDuration)}',
       style: Styles.classroomInfoText,
-      maxLines: 1,
-      softWrap: false,
+      maxLines: 2,
       overflow: TextOverflow.ellipsis,
     );
   }

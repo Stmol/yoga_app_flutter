@@ -1,6 +1,7 @@
 import 'package:built_collection/built_collection.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:my_yoga_fl/assets.dart';
 import 'package:my_yoga_fl/models/asana_model.dart';
 import 'package:my_yoga_fl/screens/asana_screen.dart';
 
@@ -70,22 +71,27 @@ class AsanaListItem extends StatelessWidget {
   }) : super(key: key);
 
   Widget _getImage() {
-    return Container(
-      height: 80,
-      width: 80,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        color: Colors.grey[300],
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            Colors.grey[100],
-            Colors.grey[300],
-          ],
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        height: 80,
+        width: 80,
+        decoration: BoxDecoration(
+          color: Colors.grey[300],
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Colors.grey[100],
+              Colors.grey[300],
+            ],
+          ),
+        ),
+        child: Image.asset(
+          ImageAssets.asanaCoverImage,
+          fit: BoxFit.contain,
         ),
       ),
-      // child: null,
     );
   }
 

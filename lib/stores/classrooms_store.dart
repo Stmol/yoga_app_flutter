@@ -94,8 +94,7 @@ abstract class ClassroomsStoreBase with Store {
   // TODO: Delete | Warning: don't use it!
   Future<void> refreshData() async {
     final data = await _loadClassroomsFromJSON();
-    _classrooms = _classrooms.rebuild((b) =>
-    b
+    _classrooms = _classrooms.rebuild((b) => b
       ..clear()
       ..addAll(data));
   }

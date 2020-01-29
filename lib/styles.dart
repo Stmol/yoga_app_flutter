@@ -35,6 +35,6 @@ abstract class Styles {
 
   static const classroomInfoText = TextStyle(
     color: Colors.grey,
-    fontSize: 14,
+    fontSize: 16,
   );
 }

@@ -79,7 +79,7 @@ class _AsanaScreen extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: ListView(
         children: [
-          Image.asset(ImageAssets.asanaCoverImage), // TODO: Get image from model
+          Image.asset(ImageAssets.asanaArtImage), // TODO: Get image from model
           SizedBox(height: 15),
           Button(
             'Добавить в тренировку',

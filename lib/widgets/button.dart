@@ -23,7 +23,7 @@ class Button extends StatelessWidget {
         super(key: key);
 
   Color get fillColor {
-    switch(buttonStyle) {
+    switch (buttonStyle) {
       case ButtonStyle.plain:
         return Styles.plainButtonColor;
       case ButtonStyle.success:
@@ -38,7 +38,7 @@ class Button extends StatelessWidget {
   }
 
   Color get highlightColor {
-    switch(buttonStyle) {
+    switch (buttonStyle) {
       case ButtonStyle.plain:
         return Styles.plainButtonHighlightColor;
       case ButtonStyle.success:
@@ -53,7 +53,7 @@ class Button extends StatelessWidget {
   }
 
   Color get textColor {
-    switch(buttonStyle) {
+    switch (buttonStyle) {
       case ButtonStyle.plain:
         return Styles.primaryBrandColor;
       case ButtonStyle.success:
@@ -77,8 +77,14 @@ class Button extends StatelessWidget {
       opacity: isEnabled ? 1.0 : 0.4,
       child: RawMaterialButton(
         child: Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: Text(title, style: textStyle),
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          child: Text(
+            title,
+            maxLines: 1,
+            softWrap: false,
+            overflow: TextOverflow.fade,
+            style: textStyle,
+          ),
         ),
         fillColor: fillColor,
         splashColor: Colors.transparent,

@@ -1,8 +1,11 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mobx/mobx.dart';
+import 'package:my_yoga_fl/assets.dart';
 import 'package:my_yoga_fl/i18n/plural.dart';
 import 'package:my_yoga_fl/models/classroom_model.dart';
 import 'package:my_yoga_fl/screens/classroom_screen.dart';
@@ -13,6 +16,19 @@ import 'package:my_yoga_fl/styles.dart';
 import 'package:my_yoga_fl/widgets/button.dart';
 import 'package:my_yoga_fl/widgets/search_field.dart';
 import 'package:provider/provider.dart';
+
+const List<String> emojiForClassroom = [
+  '🙏',
+  '😌',
+  '😬',
+  '😮',
+  '💪',
+  '✌️',
+  '👀',
+  '🐰',
+  '🐼',
+  '🐵',
+];
 
 class ClassroomsScreen extends StatelessWidget {
   static const routeName = '/classes';
@@ -62,27 +78,38 @@ class _ClassroomsScreen extends StatelessWidget {
 }
 
 class _PredefinedClassesList extends StatelessWidget {
-  Widget _getListItem(String title, Color bgColor) {
+  Widget _getListItem(String title, Color bgColor, String imageAsset) {
     return Container(
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(20),
-      ),
       height: 150,
       width: 120,
       padding: EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(20),
+        image: DecorationImage(
+          image: AssetImage(imageAsset),
+          fit: BoxFit.cover,
+        ),
+      ),
       child: Align(
         alignment: Alignment.bottomLeft,
         child: Text(
           title,
           maxLines: 3,
           overflow: TextOverflow.ellipsis,
-          softWrap: true,
+          softWrap: false,
           style: GoogleFonts.pTSansCaption(
             textStyle: TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
               fontSize: 16, // TODO: Words wrapping by letter
+              shadows: [
+                Shadow(
+                  blurRadius: 6.0,
+                  color: Colors.grey[600],
+                  offset: Offset(0, 1.0),
+                )
+              ],
             ),
           ),
         ),
@@ -109,10 +136,20 @@ class _PredefinedClassesList extends StatelessWidget {
                 itemBuilder: (context, index) {
                   final classroom = store.predefinedClassrooms[index];
 
+                  final images = <String>[
+                    ImageAssets.classroomMeditateImage,
+                    ImageAssets.classroomVitalityImage,
+                    ImageAssets.classroomMomsImage,
+                  ];
+
                   return Row(
-                    children: <Widget>[
+                    children: [
                       GestureDetector(
-                        child: _getListItem(classroom.title, Colors.amber[200]),
+                        child: _getListItem(
+                          classroom.title,
+                          Colors.amber[200],
+                          images[index],
+                        ),
                         onTap: () {
                           Navigator.push(context, MaterialPageRoute(
                             builder: (context) {
@@ -121,7 +158,7 @@ class _PredefinedClassesList extends StatelessWidget {
                           ));
                         },
                       ),
-                      SizedBox(width: 20),
+                      SizedBox(width: index == store.predefinedClassrooms.length - 1 ? 0 : 28),
                     ],
                   );
                 },
@@ -136,6 +173,8 @@ class _PredefinedClassesList extends StatelessWidget {
 
 class _ActiveClassesList extends StatelessWidget {
   Widget _classroomListItem(ClassroomModel classroom, BuildContext context) {
+    final rand = Random();
+
     return Container(
       padding: EdgeInsets.all(8),
       decoration: BoxDecoration(
@@ -150,7 +189,19 @@ class _ActiveClassesList extends StatelessWidget {
             height: 60,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(4),
-              color: Colors.grey[200],
+              gradient: LinearGradient(
+//                colors: [Color(0x99FF7D14), Color(0x99F94327)],
+                colors: [Color(0x99E1DADA), Color(0x99BDCAD9)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+            child: Align(
+              alignment: Alignment.center,
+              child: Text(
+                emojiForClassroom[rand.nextInt(9)],
+                textScaleFactor: 1.6,
+              ),
             ),
           ),
           SizedBox(width: 6),

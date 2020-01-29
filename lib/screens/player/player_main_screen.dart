@@ -190,12 +190,15 @@ class _PlayerMainScreenContentState extends State<_PlayerMainScreenContent> {
                   ),
                 ),
               ),
-              child: Image.asset(
-                ImageAssets.asanaCoverImage,
-                //fit: BoxFit.fill,
-                color: Colors.grey,
-                colorBlendMode:
-                    index == store.currentAsanaBlockIndex ? BlendMode.dst : BlendMode.saturation,
+              child: Opacity(
+                opacity: index == store.currentAsanaBlockIndex ? 1.0 : 0.7,
+                child: Image.asset(
+                  ImageAssets.asanaCoverImage,
+                  fit: BoxFit.cover,
+                  color: Colors.grey,
+                  colorBlendMode:
+                      index == store.currentAsanaBlockIndex ? BlendMode.dst : BlendMode.saturation,
+                ),
               ),
             ),
           ),
@@ -251,7 +254,7 @@ class _PlayerMainScreenContentState extends State<_PlayerMainScreenContent> {
           return Column(
             children: [
               Expanded(
-                child: Image.asset(ImageAssets.asanaCoverImage),
+                child: Image.asset(ImageAssets.asanaArtImage),
               ),
               Padding(
                 padding: const EdgeInsets.only(left: 10, right: 10, bottom: 5),
