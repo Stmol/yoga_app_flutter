@@ -29,7 +29,7 @@ class _ChangelogScreenState extends State<ChangelogScreen> {
         child: Container(
           width: double.infinity,
           color: Colors.white,
-          padding: EdgeInsets.all(20),
+          padding: const EdgeInsets.all(20),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -37,14 +37,32 @@ class _ChangelogScreenState extends State<ChangelogScreen> {
                 ActivityIndicator()
               else
                 Expanded(
-                  child: Markdown(
-                    data: _data,
-                    selectable: true,
+                  child: Stack(
+                    alignment: Alignment.bottomCenter,
+                    children: [
+                      Markdown(
+                        data: _data,
+                        selectable: true,
+                      ),
+                      Container(
+                        height: 25,
+                        decoration: const BoxDecoration(
+                          gradient: const LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              const Color(0x1AFFFFFF),
+                              const Color(0xFFFFFFFF),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               Container(
                 width: double.infinity,
-                margin: EdgeInsets.only(top: 10),
+                margin: const EdgeInsets.only(top: 5),
                 child: Button(
                   'ОК, понятно',
                   style: ButtonStyle.success,

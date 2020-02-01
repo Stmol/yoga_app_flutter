@@ -54,12 +54,12 @@ class ClassroomsScreen extends StatelessWidget {
           style: Theme.of(context).textTheme.title,
         ),
       ),
-      body: _ClassroomsScreen(),
+      body: _ClassroomsScreenContent(),
     );
   }
 }
 
-class _ClassroomsScreen extends StatelessWidget {
+class _ClassroomsScreenContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -237,54 +237,55 @@ class _ActiveClassesList extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
-        Consumer<ClassroomsStore>(
-          builder: (_, store, __) {
-            return Observer(
-              builder: (_) => ListView.builder(
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                itemCount: store.usersClassrooms.length,
-                itemBuilder: (_, index) {
-                  final classroom = store.usersClassrooms[index]; // FIXME: Possible out of a range
+        Observer(
+          builder: (_) {
+            final store = Provider.of<ClassroomsStore>(context, listen: false);
+            final reversedClassrooms = store.usersClassrooms.reversed.toList(growable: false);
 
-                  return GestureDetector(
-                    child: Container(
-                      padding: EdgeInsets.only(bottom: 10),
-                      child: Dismissible(
-                        key: UniqueKey(),
-                        direction: DismissDirection.endToStart,
-                        onDismissed: (_) {
-                          // TODO: Add confirmDismiss with popup
-                          store.deleteClassroom(classroom);
-                        },
-                        background: Container(
-                          padding: EdgeInsets.only(right: 20),
-                          margin: EdgeInsets.symmetric(vertical: 8),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.only(
-                              topRight: Radius.circular(8),
-                              bottomRight: Radius.circular(8),
-                            ),
-                            color: Colors.red[200],
+            return ListView.builder(
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              itemCount: reversedClassrooms.length,
+              itemBuilder: (_, index) {
+                final classroom = reversedClassrooms[index]; // FIXME: Possible out of a range
+
+                return GestureDetector(
+                  child: Container(
+                    padding: EdgeInsets.only(bottom: 10),
+                    child: Dismissible(
+                      key: UniqueKey(),
+                      direction: DismissDirection.endToStart,
+                      onDismissed: (_) {
+                        // TODO: Add confirmDismiss with popup
+                        store.deleteClassroom(classroom);
+                      },
+                      background: Container(
+                        padding: EdgeInsets.only(right: 20),
+                        margin: EdgeInsets.symmetric(vertical: 8),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.only(
+                            topRight: Radius.circular(8),
+                            bottomRight: Radius.circular(8),
                           ),
-                          child: Align(
-                            alignment: Alignment.centerRight,
-                            child: Icon(Icons.delete, color: Colors.white),
-                          ),
+                          color: Colors.red[200],
                         ),
-                        child: _classroomListItem(classroom, context),
+                        child: Align(
+                          alignment: Alignment.centerRight,
+                          child: Icon(Icons.delete, color: Colors.white),
+                        ),
                       ),
+                      child: _classroomListItem(classroom, context),
                     ),
-                    onTap: () {
-                      Navigator.push(context, MaterialPageRoute(
-                        builder: (context) {
-                          return ClassroomScreen(classroom: classroom);
-                        },
-                      ));
-                    },
-                  );
-                },
-              ),
+                  ),
+                  onTap: () {
+                    Navigator.push(context, MaterialPageRoute(
+                      builder: (context) {
+                        return ClassroomScreen(classroom: classroom);
+                      },
+                    ));
+                  },
+                );
+              },
             );
           },
         ),
