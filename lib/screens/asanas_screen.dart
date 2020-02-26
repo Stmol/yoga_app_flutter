@@ -115,7 +115,7 @@ class _AsanasScreenContentState extends State<_AsanasScreenContent> {
       physics: BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
       slivers: <Widget>[
         SliverAppBar(
-          title: Text('Асаны', style: Theme.of(context).textTheme.title),
+          title: Text('Asanas', style: Theme.of(context).textTheme.title),
           titleSpacing: 0,
           centerTitle: false,
           backgroundColor: Colors.white,

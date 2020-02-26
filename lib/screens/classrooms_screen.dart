@@ -9,12 +9,13 @@ import 'package:my_yoga_fl/assets.dart';
 import 'package:my_yoga_fl/i18n/plural.dart';
 import 'package:my_yoga_fl/models/classroom_model.dart';
 import 'package:my_yoga_fl/screens/classroom_screen.dart';
-import 'package:my_yoga_fl/screens/new_classroom/step_1.dart';
+import 'package:my_yoga_fl/screens/new_classroom/new_classroom_screen.dart';
 import 'package:my_yoga_fl/stores/classrooms_store.dart';
 import 'package:my_yoga_fl/stores/new_classroom_store.dart';
 import 'package:my_yoga_fl/styles.dart';
+import 'package:my_yoga_fl/utils/local_notification.dart';
+import 'package:my_yoga_fl/utils/log.dart';
 import 'package:my_yoga_fl/widgets/button.dart';
-import 'package:my_yoga_fl/widgets/search_field.dart';
 import 'package:provider/provider.dart';
 
 const List<String> emojiForClassroom = [
@@ -50,7 +51,7 @@ class ClassroomsScreen extends StatelessWidget {
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
-          'Классы',
+          'Classes',
           style: Theme.of(context).textTheme.title,
         ),
       ),
@@ -66,8 +67,6 @@ class _ClassroomsScreenContent extends StatelessWidget {
       child: ListView(
         padding: const EdgeInsets.all(20),
         children: <Widget>[
-          SearchField(),
-          SizedBox(height: 15),
           _PredefinedClassesList(),
           SizedBox(height: 15),
           _ActiveClassesList(),
@@ -126,7 +125,7 @@ class _PredefinedClassesList extends StatelessWidget {
           return Observer(
             builder: (_) {
               if (store.predefinedClassrooms.isEmpty) {
-                return Container(); // TODO: Empty list
+                return SizedBox.shrink(); // TODO: Empty list
               }
 
               return ListView.builder(
@@ -233,6 +232,40 @@ class _ActiveClassesList extends StatelessWidget {
     );
   }
 
+  void _onCreateButtonTap(BuildContext context) {
+    final route = MaterialPageRoute(
+      // TODO: What about insane rebuilding widgets below?
+      fullscreenDialog: true,
+      builder: (context) {
+        final newClassroomStore = NewClassroomStore();
+
+        when(
+          (_) => newClassroomStore.editableClassroom != null,
+          () {
+            Provider.of<ClassroomsStore>(context, listen: false)
+                .addClassroom(newClassroomStore.editableClassroom);
+
+            LocalNotification.success(
+              context,
+              message: 'Class was created',
+              // TODO: Its possible to do in promise callback of Navigator push method
+              inPostCallback: true,
+            );
+          },
+          onError: (error, _) {
+            LocalNotification.error(context, inPostCallback: true);
+            Log.error(error);
+          },
+        );
+
+        return NewClassroomScreen(newClassroomStore: newClassroomStore);
+      },
+    );
+
+    Navigator.push(context, route);
+    //.then((v) => print(v)); TODO: Check this method to pass a result
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -292,26 +325,8 @@ class _ActiveClassesList extends StatelessWidget {
         Container(
           width: double.infinity,
           child: Button(
-            'Создать свой класс',
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  // TODO: What about insane rebuilding widgets below?
-                  fullscreenDialog: true,
-                  builder: (context) {
-                    final newClassroomStore = NewClassroomStore();
-
-                    when((_) => newClassroomStore.editableClassroom != null, () {
-                      Provider.of<ClassroomsStore>(context, listen: false)
-                          .addClassroom(newClassroomStore.editableClassroom);
-                    });
-
-                    return NewClassroomStep1Screen(newClassroomStore: newClassroomStore);
-                  },
-                ),
-              );
-            },
+            'Create new class',
+            onTap: () => _onCreateButtonTap(context),
           ),
         ),
       ],

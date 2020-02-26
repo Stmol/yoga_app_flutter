@@ -1,4 +1,3 @@
-import 'package:flushbar/flushbar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +10,7 @@ import 'package:my_yoga_fl/screens/classrooms_screen.dart';
 import 'package:my_yoga_fl/stores/asanas_store.dart';
 import 'package:my_yoga_fl/stores/classrooms_store.dart';
 import 'package:my_yoga_fl/styles.dart';
+import 'package:my_yoga_fl/utils/local_notification.dart';
 import 'package:my_yoga_fl/utils/log.dart';
 import 'package:my_yoga_fl/widgets/button.dart';
 import 'package:package_info/package_info.dart';
@@ -118,22 +118,11 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _showNotification(BuildContext context, {bool isError = false}) {
-    Flushbar(
-      // TODO: Move to separate widget
-      message: isError ? 'Произошла ошибка' : 'Данные приложения сброшены',
-      icon: Icon(
-        isError ? Icons.error_outline : Icons.done,
-        color: isError ? Colors.red : Colors.lightGreenAccent,
-      ),
-      shouldIconPulse: false,
-      margin: EdgeInsets.all(8),
-      borderRadius: 8.0,
-      duration: Duration(milliseconds: 1350),
-      animationDuration: Duration(milliseconds: 350),
-      flushbarPosition: FlushbarPosition.TOP,
-      barBlur: 1,
-      backgroundColor: Color(0xCC000000),
-    )..show(context);
+    if (isError == false) {
+      LocalNotification.success(context, message: 'Данные приложения сброшены');
+    } else {
+      LocalNotification.error(context);
+    }
   }
 
   void _onClearButtonTap(BuildContext context) {
@@ -143,16 +132,16 @@ class _MyHomePageState extends State<MyHomePage> {
       barrierDismissible: false,
       builder: (_) {
         return AlertDialog(
-          content: Text('Удалить пользовательские данные?'),
+          content: Text('Are you sure, you want to delete all users data?'),
           actions: [
             FlatButton(
-                child: Text('Отмена'),
+                child: Text('Cancel'),
                 textColor: Colors.black,
                 onPressed: () {
                   Navigator.of(context).pop();
                 }),
             FlatButton(
-                child: Text('Удалить'),
+                child: Text('Delete'),
                 textColor: Colors.red[400],
                 onPressed: () {
                   Navigator.of(context).pop();
@@ -173,7 +162,7 @@ class _MyHomePageState extends State<MyHomePage> {
           children: [
             Expanded(
               child: Button(
-                'Асаны',
+                'Asanas',
                 onTap: () {
                   Navigator.pushNamed(context, AsanasScreen.routeName);
                 },
@@ -182,7 +171,7 @@ class _MyHomePageState extends State<MyHomePage> {
             SizedBox(width: 10),
             Expanded(
               child: Button(
-                'Классы',
+                'Classes',
                 onTap: () {
                   Navigator.pushNamed(context, ClassroomsScreen.routeName);
                 },
@@ -190,11 +179,9 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           ],
         ),
-        SizedBox(height: 10),
-        Button('Быстрая тренировка', onTap: null),
         SizedBox(height: 30),
         Button(
-          'Очистить и обновить данные',
+          'Clear and refresh data',
           style: ButtonStyle.warning,
           onTap: _isCleaning ? null : () => _onClearButtonTap(context),
         ),
@@ -216,7 +203,7 @@ class _MyHomePageState extends State<MyHomePage> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           Text(
-            'Версия ${widget.appVersion}',
+            'Version ${widget.appVersion}',
             style: TextStyle(color: Color(0xFF1D72AA), fontSize: 18),
           ),
           LimitedBox(
@@ -224,7 +211,7 @@ class _MyHomePageState extends State<MyHomePage> {
             child: OutlineButton(
               child: FittedBox(
                 child: Text(
-                  'Что нового?',
+                  'What\'s new?',
                   style: TextStyle(color: Color(0xFF1D72AA)),
                 ),
               ),

@@ -64,7 +64,7 @@ class _ChangelogScreenState extends State<ChangelogScreen> {
                 width: double.infinity,
                 margin: const EdgeInsets.only(top: 5),
                 child: Button(
-                  'ОК, понятно',
+                  'OK, I\'ve got it',
                   style: ButtonStyle.success,
                   onTap: () => Navigator.of(context).pop(),
                 ),

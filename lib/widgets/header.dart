@@ -20,7 +20,7 @@ class Header extends StatelessWidget {
         onPressed: () => Navigator.of(context).pop(),
       ),
       title: Text(
-        "Классы",
+        'Classes',
         style: Theme.of(context).textTheme.title,
       ),
     );

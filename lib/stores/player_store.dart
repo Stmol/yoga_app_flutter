@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:audioplayers/audio_cache.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
 import 'package:my_yoga_fl/models/classroom_model.dart';
@@ -32,10 +33,13 @@ abstract class PlayerStoreBase with Store {
       isPlaying == false ? _ticker.stop() : _ticker.start();
     });
 
+    // Reaction to changes item in queue
     _queueItemShiftReaction = reaction((_) => _currentQueueItemIndex, (_) {
 //      if (currentQueueItem.hasAsana) { FIXME: Better approach to switch current asana
 //        currentAsanaUName = currentQueueItem.asanaUniqueName;
 //      }
+
+      _playTimerSound();
 
       if (playerPhase == PlayerPhase.finish) {
         isPlaying = false; // FIXME: Are you sure?
@@ -47,10 +51,19 @@ abstract class PlayerStoreBase with Store {
     _queue = _initQueue();
     totalTimer = _getTotalLeftDuration(_queue, _currentQueueItemIndex);
 
+    // TODO: Insert here your own sound file
+//    _audioCache.load('Notification.m4a').then((_) {
+//      _isSoundsLoaded = true;
+//    }).catchError((error) {
+//      _isSoundsLoaded = false;
+//      Log.error(error);
+//    });
+
     //isPlaying = true; //TODO: Auto start?
   }
 
   final ClassroomModel _classroom;
+  final AudioCache _audioCache = AudioCache(prefix: 'audio/');
 
   @observable
   bool isPlaying = false;
@@ -67,6 +80,8 @@ abstract class PlayerStoreBase with Store {
   @observable
   Duration currentTimerDuration = BEGIN_DURATION;
 
+  bool _isSoundsLoaded = false;
+
   Ticker _ticker = Ticker();
   List<PlayerQueueItem> _queue;
 
@@ -82,6 +97,10 @@ abstract class PlayerStoreBase with Store {
       .where((item) => item.hasAsana)
       .map((item) => item.asanaUniqueName)
       .toList(growable: false);
+
+  PlayerQueueItem get nextQueueItemWithAsana {
+    return _queue.skip(_currentQueueItemIndex).firstWhere((item) => item.hasAsana);
+  }
 
   @computed
   bool get isFinished => playerPhase == PlayerPhase.finish && isPlaying == false;
@@ -103,6 +122,10 @@ abstract class PlayerStoreBase with Store {
 
   @computed
   int get currentAsanaBlockIndex {
+    if (currentQueueItem.hasAsana == false) {
+      return null;
+    }
+
     return _queue.take(_currentQueueItemIndex).fold(0, (prevIndex, el) {
       return el.hasAsana ? prevIndex + 1 : prevIndex;
     });
@@ -110,14 +133,16 @@ abstract class PlayerStoreBase with Store {
 
   @computed
   String get currentAsanaUniqueName {
-    var asanasItems = _queue.where((item) => item.hasAsana).toList(growable: false);
-
-    if (currentAsanaBlockIndex >= 0 && currentAsanaBlockIndex < asanasItems.length) {
-      // TODO: You can use here .fold() method as in [currentAsanaBlockIndex]
-      return asanasItems[currentAsanaBlockIndex].asanaUniqueName;
+    if (currentQueueItem.hasAsana) {
+      return currentQueueItem.asanaUniqueName;
     }
 
-    return asanasItems.last.asanaUniqueName;
+    // If player finished it have to show last asana
+    if (currentQueueItem.isFinished) {
+      return _queue.lastWhere((item) => item.hasAsana).asanaUniqueName;
+    }
+
+    return null;
   }
 
   // FIXME: Use this memoized field instead [currentAsanaUniqueName] when pause blocks will be added to screen
@@ -270,7 +295,26 @@ abstract class PlayerStoreBase with Store {
     Wakelock.toggle(on: isOn);
   }
 
+  void _playTimerSound() {
+    if (_isSoundsLoaded == false) {
+      return;
+    }
+
+    if (isPlaying == false) {
+      return;
+    }
+
+    if (currentQueueItem.isFinished == true) {
+      return;
+    }
+
+    // TODO: Insert here your own audio file
+    //_audioCache.play('Notification.m4a');
+  }
+
   void dispose() {
+    _audioCache.clearCache();
+
     _isPlayingReaction();
     _queueItemShiftReaction();
 

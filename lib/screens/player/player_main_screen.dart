@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -14,7 +12,11 @@ import 'package:my_yoga_fl/models/classroom_model.dart';
 import 'package:my_yoga_fl/stores/asanas_store.dart';
 import 'package:my_yoga_fl/stores/player_store.dart';
 import 'package:my_yoga_fl/styles.dart';
+import 'package:my_yoga_fl/utils/log.dart';
 import 'package:provider/provider.dart';
+
+import 'player_button.dart';
+import 'player_play_button.dart';
 
 class PlayerMainScreen extends StatelessWidget {
   final ClassroomModel classroom;
@@ -35,7 +37,7 @@ class PlayerMainScreen extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 10, vertical: 3),
       child: Observer(
         builder: (_) => Text(
-          playerStore.totalTimer.printAsTimer(),
+          playerStore.totalTimer.toTimeString(),
           style: GoogleFonts.montserrat(
             fontSize: 18,
             fontWeight: FontWeight.w700,
@@ -148,10 +150,19 @@ class _PlayerMainScreenContentState extends State<_PlayerMainScreenContent> {
   void initState() {
     super.initState();
 
+    store.asanasUniqueNamesInQueue.asMap().forEach((index, asanaUniqueName) {
+      final hash = _getHashForAsanaInQueueBar(asanaUniqueName, index);
+      asanasKeysInQueueBar[hash] = GlobalKey();
+    });
+
     // Auto scroll to current asana inside asanas queue
     _asanasInQueueBarAutoScrollReaction = reaction(
       (_) => store.currentAsanaBlockIndex,
       (index) {
+        if (store.currentAsanaUniqueName == null) {
+          return;
+        }
+
         final hash = _getHashForAsanaInQueueBar(store.currentAsanaUniqueName, index);
         if (asanasKeysInQueueBar.containsKey(hash) == false) {
           return;
@@ -170,42 +181,35 @@ class _PlayerMainScreenContentState extends State<_PlayerMainScreenContent> {
   }
 
   Widget _queueAsanasBarItem(AsanaModel asana, int index, bool isLast) {
+    final isActive = store.currentAsanaBlockIndex == index;
     final hash = _getHashForAsanaInQueueBar(asana.uniqueName, index);
-    asanasKeysInQueueBar[hash] = GlobalKey(); // TODO: Fill the map in initial method?
 
-    return Observer(
-      builder: (BuildContext context) {
-        return Row(children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(4),
-            child: Container(
-              key: asanasKeysInQueueBar[hash],
-              decoration: BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(
-                    width: 3,
-                    color: index == store.currentAsanaBlockIndex
-                        ? Styles.accentGreyColor
-                        : Styles.shadedGreyColor,
-                  ),
-                ),
-              ),
-              child: Opacity(
-                opacity: index == store.currentAsanaBlockIndex ? 1.0 : 0.7,
-                child: Image.asset(
-                  ImageAssets.asanaCoverImage,
-                  fit: BoxFit.cover,
-                  color: Colors.grey,
-                  colorBlendMode:
-                      index == store.currentAsanaBlockIndex ? BlendMode.dst : BlendMode.saturation,
-                ),
+    return Row(children: [
+      ClipRRect(
+        borderRadius: BorderRadius.circular(4),
+        child: Container(
+          key: asanasKeysInQueueBar[hash],
+          decoration: BoxDecoration(
+            border: Border(
+              bottom: BorderSide(
+                width: 3,
+                color: isActive ? Styles.accentGreyColor : Styles.shadedGreyColor,
               ),
             ),
           ),
-          SizedBox(width: isLast ? 0 : 10),
-        ]);
-      },
-    );
+          child: Opacity(
+            opacity: isActive ? 1.0 : 0.7,
+            child: Image.asset(
+              ImageAssets.asanaCoverImage,
+              fit: BoxFit.cover,
+              color: Colors.grey,
+              colorBlendMode: isActive ? BlendMode.dst : BlendMode.saturation,
+            ),
+          ),
+        ),
+      ),
+      SizedBox(width: isLast ? 0 : 10),
+    ]);
   }
 
   Widget _queueAsanasBar(BuildContext context) {
@@ -216,14 +220,18 @@ class _PlayerMainScreenContentState extends State<_PlayerMainScreenContent> {
       itemCount: store.asanasUniqueNamesInQueue.length,
       scrollDirection: Axis.horizontal,
       itemBuilder: (context, index) {
-        final asana = asanasStore.asanas[store.currentAsanaUniqueName];
-        final isLast = (store.asanasUniqueNamesInQueue.length - 1) == index;
-        
-        if (asana == null) {
-            return SizedBox.shrink();
-        }
+        return Observer(builder: (_) {
+          final asanaUniqueName = store.asanasUniqueNamesInQueue[index];
+          final asana = asanasStore.asanas[asanaUniqueName];
+          final isLast = (store.asanasUniqueNamesInQueue.length - 1) == index;
 
-        return _queueAsanasBarItem(asana, index, isLast);
+          if (asana == null) {
+            Log.warn('Somehow you\'ve got empty asana queue item.');
+            return SizedBox.shrink();
+          }
+
+          return _queueAsanasBarItem(asana, index, isLast);
+        });
       },
     );
   }
@@ -246,6 +254,10 @@ class _PlayerMainScreenContentState extends State<_PlayerMainScreenContent> {
       ),
       child: Consumer<AsanasStore>(builder: (_, asanasStore, __) {
         return Observer(builder: (_) {
+          if (store.currentAsanaUniqueName == null || store.currentAsanaUniqueName.isEmpty) {
+            return SizedBox.shrink();
+          }
+
           final asana = asanasStore.asanas[store.currentAsanaUniqueName];
           if (asana == null) {
             return SizedBox.shrink();
@@ -302,19 +314,137 @@ class _PlayerMainScreenContentState extends State<_PlayerMainScreenContent> {
     );
   }
 
+  Widget _currentNonAsanaBlock(
+    String text, {
+    AsanaModel nextAsana,
+    Duration nextAsanaDuration,
+  }) {
+    assert(text != null);
+
+    final nextAsanaWidget = nextAsana == null
+        ? SizedBox.shrink()
+        : Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              children: <Widget>[
+                Row(
+                  children: <Widget>[
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(4),
+                      child: Container(
+                        width: 60,
+                        height: 60,
+                        child: Image.asset(ImageAssets.asanaCoverImage),
+                      ),
+                    ),
+                    SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text('Next:', style: TextStyle(fontSize: 18, color: Colors.grey)),
+                          Text(
+                            nextAsana.title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: GoogleFonts.pTSans(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 22,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Text(
+                      nextAsanaDuration?.toTimeString() ?? '',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey[50], width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: Color.fromRGBO(101, 101, 101, 0.2),
+            offset: Offset(0, 2),
+            blurRadius: 2,
+          )
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Expanded(
+            child: Center(
+              child: FittedBox(
+                child: Text(
+                  text,
+                  maxLines: 2,
+                  style: GoogleFonts.pTSansCaption(
+                    fontSize: 72,
+                    fontWeight: FontWeight.bold,
+                    color: Styles.timerPauseColor,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          nextAsanaWidget,
+        ],
+      ),
+    );
+  }
+
+  Widget _currentPlayerItem(BuildContext context) {
+    if (store.currentQueueItem.phase == PlayerPhase.begin) {
+      return _currentNonAsanaBlock('Prepare');
+    }
+
+    if (store.currentQueueItem.isChilling) {
+      AsanaModel nextAsana;
+      Duration nextAsanaDuration;
+
+      if (store.nextQueueItemWithAsana != null) {
+        final asanasStore = Provider.of<AsanasStore>(context, listen: false);
+        nextAsana = asanasStore.asanas[store.nextQueueItemWithAsana.asanaUniqueName];
+        nextAsanaDuration = store.nextQueueItemWithAsana.duration;
+      }
+
+      return _currentNonAsanaBlock(
+        'Break',
+        nextAsana: nextAsana,
+        nextAsanaDuration: nextAsanaDuration,
+      );
+    }
+
+    if (store.currentQueueItem.isFinished) {
+      return _currentNonAsanaBlock('Done 🎉');
+    }
+
+    return _currentAsana();
+  }
+
   Widget _timer() {
     return Observer(
       builder: (_) => Container(
         padding: EdgeInsets.symmetric(horizontal: 20),
         child: FittedBox(
           child: Text(
-            store.currentTimerDuration.printAsTimer(),
+            store.currentTimerDuration.toPlayerTimer(),
             textAlign: TextAlign.center,
             style: GoogleFonts.montserrat(
               letterSpacing: 3,
-              color: [PlayerPhase.asana, PlayerPhase.begin].contains(store.playerPhase)
-                  ? Styles.timerActiveColor
-                  : Styles.timerPauseColor,
+              color: Styles.timerPauseColor,
+//              color: [PlayerPhase.asana, PlayerPhase.begin].contains(store.playerPhase)
+//                  ? Styles.timerActiveColor
+//                  : Styles.timerPauseColor,
               fontSize: 64,
               fontWeight: FontWeight.w800,
             ),
@@ -418,8 +548,8 @@ class _PlayerMainScreenContentState extends State<_PlayerMainScreenContent> {
     );
   }
 
-  String _getHashForAsanaInQueueBar(String asanaUniqueName, int indexInQueue) {
-    return '$asanaUniqueName-$indexInQueue';
+  String _getHashForAsanaInQueueBar(String asanaUniqueName, int index) {
+    return '$asanaUniqueName-$index';
   }
 
   @override
@@ -440,7 +570,7 @@ class _PlayerMainScreenContentState extends State<_PlayerMainScreenContent> {
             flex: 46,
             child: Padding(
               padding: const EdgeInsets.only(top: 7, left: 20, right: 20),
-              child: _currentAsana(),
+              child: Observer(builder: (_) => _currentPlayerItem(context)),
             ),
           ),
           Expanded(
@@ -464,231 +594,5 @@ class _PlayerMainScreenContentState extends State<_PlayerMainScreenContent> {
     _asanasInQueueBarAutoScrollReaction();
 
     super.dispose();
-  }
-
-//  Widget _progressBar(double width, double progress) {
-//    final progressBarHeight = 6.0;
-//
-//    return Stack(
-//      children: [
-//        Container(
-//          height: progressBarHeight,
-//          width: width,
-//          decoration: BoxDecoration(
-//            color: kShadedGrey,
-//            borderRadius: BorderRadius.circular(50),
-//          ),
-//        ),
-//        Container(
-//          height: progressBarHeight,
-//          width: width * progress,
-//          decoration: BoxDecoration(
-//            color: kAccentGrey,
-//            borderRadius: BorderRadius.circular(50),
-//          ),
-//        )
-//      ],
-//    );
-//  }
-}
-
-class PlayerPlayButton extends StatefulWidget {
-  final Function onTap;
-  final bool isEnabled;
-  final IconData icon;
-
-  const PlayerPlayButton({
-    Key key,
-    @required this.onTap,
-    @required this.icon,
-    this.isEnabled = true,
-  }) : super(key: key);
-
-  @override
-  _PlayerPlayButtonState createState() => _PlayerPlayButtonState();
-}
-
-class _PlayerPlayButtonState extends State<PlayerPlayButton> with SingleTickerProviderStateMixin {
-  // TODO: Move colors to [Styles]
-  final Color _bgColor = Color(0xFFF1F1F4);
-  final Color _bgTappedColor = Color(0xFFBEBEC1);
-
-  final Color _iconColor = Color(0xFF3C3C59);
-  final Color _iconTappedColor = Color(0xFF141630);
-
-  AnimationController _animationController;
-  Animation<double> _animation;
-  TickerFuture _pushAnimationTicker;
-
-  Color _currentBgColor;
-  Color _currentIconColor;
-
-  final animationDuration = const Duration(milliseconds: 85);
-  final zoomOutLevel = 0.94;
-
-  @override
-  void initState() {
-    super.initState();
-    _animationController = AnimationController(duration: animationDuration, vsync: this);
-    _animation = Tween<double>(begin: 1.0, end: zoomOutLevel).animate(_animationController);
-
-    _currentBgColor = _bgColor;
-    _currentIconColor = _iconColor;
-  }
-
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: (_) {
-        if (widget.isEnabled == false) {
-          return;
-        }
-
-        setState(() {
-          _currentBgColor = _bgTappedColor;
-          _currentIconColor = _iconTappedColor;
-        });
-
-        _pushAnimationTicker = _animationController.forward();
-      },
-      onTapUp: (_) {
-        if (widget.isEnabled == false) {
-          return;
-        }
-
-        widget.onTap();
-
-        Timer(const Duration(milliseconds: 8), () {
-          setState(() {
-            _currentBgColor = _bgColor;
-            _currentIconColor = _iconColor;
-          });
-        });
-
-        _pushAnimationTicker.whenCompleteOrCancel(() => _animationController.reverse());
-      },
-      onTapCancel: () {
-        if (widget.isEnabled == false) {
-          return;
-        }
-
-        setState(() {
-          _currentBgColor = _bgColor;
-          _currentIconColor = _iconColor;
-        });
-
-        _animationController.reverse();
-      },
-      child: AnimatedBuilder(
-        animation: _animation,
-        child: Container(
-          padding: EdgeInsets.all(4),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(100),
-          ),
-          child: Opacity(
-            opacity: widget.isEnabled ? 1 : 0.4,
-            child: FittedBox(
-              child: CircleAvatar(
-                backgroundColor: _currentBgColor,
-                minRadius: 40,
-                maxRadius: 50,
-                child: Icon(
-                  widget.icon,
-                  color: _currentIconColor,
-                  size: 65,
-                ),
-              ),
-            ),
-          ),
-        ),
-        builder: (_, child) => Transform.scale(scale: _animation.value, child: child),
-      ),
-    );
-  }
-}
-
-class PlayerButton extends StatefulWidget {
-  const PlayerButton({
-    Key key,
-    @required this.child,
-    this.onTap,
-    this.borderRadius,
-  }) : super(key: key);
-
-  final Widget child;
-  final VoidCallback onTap;
-  final BorderRadius borderRadius;
-
-  @override
-  _PlayerButtonState createState() => _PlayerButtonState();
-}
-
-class _PlayerButtonState extends State<PlayerButton> with SingleTickerProviderStateMixin {
-  AnimationController _animationController;
-  Animation<double> _animation;
-  TickerFuture _scaleOutAnimationTicker;
-
-  final animationDuration = Duration(milliseconds: 95);
-  final zoomOutLevel = 0.96;
-
-  @override
-  void initState() {
-    super.initState();
-    _animationController = AnimationController(duration: animationDuration, vsync: this);
-    _animation = Tween<double>(begin: 1.0, end: zoomOutLevel).animate(_animationController);
-  }
-
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
-  }
-
-  bool get isEnabled => widget.onTap != null;
-
-  VoidCallback get _onTap {
-    if (widget.onTap == null) {
-      return null;
-    }
-
-    return () {
-      _scaleOutAnimationTicker.whenCompleteOrCancel(() => _animationController.reverse());
-      widget.onTap();
-    };
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _animation,
-      builder: (_, child) {
-        return Transform.scale(
-          scale: _animation.value,
-          child: child,
-        );
-      },
-      child: InkWell(
-        onTap: _onTap,
-        onTapDown: (_) {
-          _scaleOutAnimationTicker = _animationController.forward();
-        },
-        onTapCancel: () {
-          _animationController.reverse();
-        },
-        borderRadius: widget.borderRadius,
-        child: Opacity(
-          opacity: isEnabled ? 1.0 : 0.4,
-          child: widget.child,
-        ),
-      ),
-    );
   }
 }

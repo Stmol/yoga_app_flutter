@@ -33,12 +33,12 @@ class AsanaScreen extends StatelessWidget {
           _asanaModel.title,
           style: Theme.of(context).textTheme.title,
         ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.star_border, color: Colors.yellow[700]),
-            onPressed: () {},
-          )
-        ],
+//        actions: [
+//          IconButton(
+//            icon: Icon(Icons.star_border, color: Colors.yellow[700]),
+//            onPressed: () {},
+//          )
+//        ],
       ),
       body: _AsanaScreen(_asanaModel),
     );
@@ -82,7 +82,7 @@ class _AsanaScreen extends StatelessWidget {
           Image.asset(ImageAssets.asanaArtImage), // TODO: Get image from model
           SizedBox(height: 15),
           Button(
-            'Добавить в тренировку',
+            'Add to favourites',
             onTap: null,
           ),
           SizedBox(height: 15),

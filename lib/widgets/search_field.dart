@@ -12,7 +12,7 @@ class SearchField extends StatefulWidget {
 
   SearchField({
     Key key,
-    this.hintText = 'Поиск',
+    this.hintText = 'Search',
     this.maxLength = 50,
     this.trailing,
     this.asanasSearchStore,
@@ -114,7 +114,7 @@ class _SearchFieldState extends State<SearchField> {
     return GestureDetector(
       // TODO: Add tap effect (changing opacity)
       onTap: _cancel,
-      child: Text('Отмена', style: TextStyle(color: Colors.blue)),
+      child: Text('Cancel', style: TextStyle(color: Colors.blue)),
     );
   }
 

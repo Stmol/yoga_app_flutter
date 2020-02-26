@@ -6,27 +6,28 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:my_yoga_fl/assets.dart';
 import 'package:my_yoga_fl/models/asana_model.dart';
 import 'package:my_yoga_fl/screens/asana_screen.dart';
-import 'package:my_yoga_fl/screens/new_classroom/step_2.dart';
+import 'package:my_yoga_fl/screens/new_classroom/new_classroom_screen.dart';
 import 'package:my_yoga_fl/stores/asanas_store.dart';
 import 'package:my_yoga_fl/stores/new_classroom_store.dart';
 import 'package:my_yoga_fl/widgets/widgets.dart';
 import 'package:provider/provider.dart';
+
 import '../../extensions/duration_extensions.dart';
 
 class NewClassroomStep1Screen extends StatelessWidget {
   static const TABS_COUNT = 2;
 
   final NewClassroomStore newClassroomStore;
+  final VoidCallback onCancel;
 
   const NewClassroomStep1Screen({
     Key key,
     @required this.newClassroomStore,
+    @required this.onCancel,
   }) : super(key: key);
 
   void _nextStepButtonHandler(BuildContext context) {
-    Navigator.push(context, MaterialPageRoute(builder: (_) {
-      return NewClassroomStep2Screen(newClassroomStore: newClassroomStore);
-    }));
+    Navigator.pushNamed(context, NewClassroomScreen.STEP_2_ROUTE_NAME);
   }
 
   @override
@@ -45,7 +46,7 @@ class NewClassroomStep1Screen extends StatelessWidget {
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             color: Colors.grey,
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: onCancel,
           ),
           actions: [
             Observer(
@@ -60,17 +61,17 @@ class NewClassroomStep1Screen extends StatelessWidget {
             ),
           ],
           title: Text(
-            "Позы",
+            'Asanas',
             style: Theme.of(context).textTheme.title,
           ),
           bottom: TabBar(
             labelColor: Colors.black,
             tabs: [
               Consumer<AsanasStore>(builder: (_, store, __) {
-                return Tab(text: "Все позы (${store.asanas.length})");
+                return Tab(text: 'All Asanas (${store.asanas.length})');
               }),
               Observer(builder: (_) {
-                return Tab(text: "Выбранные (${newClassroomStore.classroomRoutines.length})");
+                return Tab(text: 'Selected (${newClassroomStore.classroomRoutines.length})');
               }),
             ],
           ),

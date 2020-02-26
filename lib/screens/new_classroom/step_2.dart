@@ -8,9 +8,11 @@ import '../../extensions/duration_extensions.dart';
 
 class NewClassroomStep2Screen extends StatelessWidget {
   final NewClassroomStore newClassroomStore;
+  final VoidCallback onCreationComplete;
 
   const NewClassroomStep2Screen({
     Key key,
+    this.onCreationComplete,
     @required this.newClassroomStore,
   }) : super(key: key);
 
@@ -31,20 +33,25 @@ class NewClassroomStep2Screen extends StatelessWidget {
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
-          'Новый класс',
+          'New class',
           style: Theme.of(context).textTheme.title,
         ),
       ),
-      body: _NewClassroomStep2Content(newClassroomStore: newClassroomStore),
+      body: _NewClassroomStep2Content(
+        newClassroomStore: newClassroomStore,
+        onCreationComplete: onCreationComplete,
+      ),
     );
   }
 }
 
 class _NewClassroomStep2Content extends StatelessWidget {
   final NewClassroomStore newClassroomStore;
+  final VoidCallback onCreationComplete;
 
   const _NewClassroomStep2Content({
     Key key,
+    this.onCreationComplete,
     @required this.newClassroomStore,
   }) : super(key: key);
 
@@ -52,10 +59,9 @@ class _NewClassroomStep2Content extends StatelessWidget {
   /// Handler Classroom saving action
   ///
   void _onSubmit(BuildContext context) {
-    // TODO Check this method to pop out from modal
-    // Navigator.popUntil(context, ModalRoute.withName(ClassroomsScreen.routeName));
-    int count = 0;
-    Navigator.popUntil(context, (_) => count++ >= 2);
+    if (onCreationComplete is Function) {
+      onCreationComplete();
+    }
   }
 
   Widget _classroomForm(BuildContext context) {
@@ -85,7 +91,7 @@ class _NewClassroomStep2Content extends StatelessWidget {
                 color: Colors.grey,
                 size: 32,
               ),
-              Text('Добавить изображение'),
+              Text('Select Cover Image'),
             ],
           ),
         ),
@@ -159,7 +165,7 @@ class _NewClassroomFormState extends State<NewClassroomForm> {
           maxLines: 1,
           maxLength: 50,
           decoration: const InputDecoration(
-            labelText: 'Название',
+            labelText: 'Class title',
             border: const OutlineInputBorder(),
             counter: const Offstage(),
           ),
@@ -171,7 +177,7 @@ class _NewClassroomFormState extends State<NewClassroomForm> {
           minLines: 1,
           maxLength: 150,
           decoration: const InputDecoration(
-            labelText: 'Описание',
+            labelText: 'Class description',
             border: const OutlineInputBorder(),
             counter: const Offstage(),
           ),
@@ -181,7 +187,7 @@ class _NewClassroomFormState extends State<NewClassroomForm> {
           controller: timeIntervalController,
           readOnly: true,
           decoration: const InputDecoration(
-            labelText: 'Пауза между позами',
+            labelText: 'Breaks duration',
             border: const OutlineInputBorder(),
             counter: const Offstage(),
           ),
@@ -189,30 +195,24 @@ class _NewClassroomFormState extends State<NewClassroomForm> {
             WhitelistingTextInputFormatter.digitsOnly,
           ],
           onTap: () {
-            showCupertinoModalPopup(context: context, builder: (_) {
-              return DurationPicker(
-                title: 'Пауза между позами',
-                initialDuration: store.formIntervalDuration,
-                onSave: (duration) {
-                  timeIntervalController.text = duration.toTimeString();
-                  store.formIntervalDuration = duration;
-                },
-              );
-            });
+            showCupertinoModalPopup(
+                context: context,
+                builder: (_) {
+                  return DurationPicker(
+                    title: 'Breaks duration',
+                    initialDuration: store.formIntervalDuration,
+                    onSave: (duration) {
+                      timeIntervalController.text = duration.toTimeString();
+                      store.formIntervalDuration = duration;
+                    },
+                  );
+                });
           },
         ),
         SizedBox(height: 15),
-//        Text(
-//          'Напоминания',
-//          style: Theme.of(context).textTheme.caption,
-//        ),
-//        SizedBox(height: 15),
         SizedBox(
           width: double.infinity,
-          child: Button(
-            'Сохранить',
-            onTap: _submitForm,
-          ),
+          child: Button('Save', onTap: _submitForm),
         ),
       ],
     );
