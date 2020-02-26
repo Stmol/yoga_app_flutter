@@ -26,6 +26,9 @@ It uses flex layout to fit different screen sizes
 ## Localization
 Data set (asanas, classrooms) contains only russian language
 
+## Copyrights
+All images used in the app belong to their authors. Please respect copyrights and dont use them in production.
+
 ## Misc
 
 MIT License, enjoy!
