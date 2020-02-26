@@ -3,28 +3,31 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:my_yoga_fl/assets.dart';
 import 'package:my_yoga_fl/models/asana_model.dart';
-import 'package:my_yoga_fl/screens/new_classroom/step_2.dart';
+import 'package:my_yoga_fl/screens/asana_screen.dart';
+import 'package:my_yoga_fl/screens/new_classroom/new_classroom_screen.dart';
 import 'package:my_yoga_fl/stores/asanas_store.dart';
 import 'package:my_yoga_fl/stores/new_classroom_store.dart';
 import 'package:my_yoga_fl/widgets/widgets.dart';
 import 'package:provider/provider.dart';
+
 import '../../extensions/duration_extensions.dart';
 
 class NewClassroomStep1Screen extends StatelessWidget {
   static const TABS_COUNT = 2;
 
   final NewClassroomStore newClassroomStore;
+  final VoidCallback onCancel;
 
   const NewClassroomStep1Screen({
     Key key,
     @required this.newClassroomStore,
+    @required this.onCancel,
   }) : super(key: key);
 
   void _nextStepButtonHandler(BuildContext context) {
-    Navigator.push(context, MaterialPageRoute(builder: (_) {
-      return NewClassroomStep2Screen(newClassroomStore: newClassroomStore);
-    }));
+    Navigator.pushNamed(context, NewClassroomScreen.STEP_2_ROUTE_NAME);
   }
 
   @override
@@ -43,13 +46,14 @@ class NewClassroomStep1Screen extends StatelessWidget {
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             color: Colors.grey,
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: onCancel,
           ),
           actions: [
             Observer(
               builder: (_) => IconButton(
                 icon: const Icon(Icons.arrow_forward),
                 color: Theme.of(context).accentColor,
+                disabledColor: Theme.of(context).accentColor.withOpacity(0.5),
                 onPressed: newClassroomStore.classroomRoutines.isNotEmpty
                     ? () => _nextStepButtonHandler(context)
                     : null,
@@ -57,17 +61,17 @@ class NewClassroomStep1Screen extends StatelessWidget {
             ),
           ],
           title: Text(
-            "Позы",
+            'Asanas',
             style: Theme.of(context).textTheme.title,
           ),
           bottom: TabBar(
             labelColor: Colors.black,
             tabs: [
               Consumer<AsanasStore>(builder: (_, store, __) {
-                return Tab(text: "Все позы (${store.asanas.length})");
+                return Tab(text: 'All Asanas (${store.asanas.length})');
               }),
               Observer(builder: (_) {
-                return Tab(text: "Выбранные (${newClassroomStore.classroomRoutines.length})");
+                return Tab(text: 'Selected (${newClassroomStore.classroomRoutines.length})');
               }),
             ],
           ),
@@ -104,6 +108,10 @@ class _AllAsanasListTabView extends StatelessWidget {
           child: _AsanaListItem(
             asana: asana,
             onAsanaAdd: () => newClassroomStore.addRoutineToClassroomWithAsana(asana),
+            onTap: () => Navigator.of(context).push(MaterialPageRoute(
+              fullscreenDialog: true,
+              builder: (_) => AsanaScreen(asana),
+            )),
           ),
         );
       },
@@ -136,6 +144,13 @@ class _ClassroomRoutinesListTabView extends StatelessWidget {
               routineAsanaDuration: routine.asanaDuration,
               isShowReorderIcon: newClassroomStore.classroomRoutines.length > 1,
               onRoutineRemove: () => newClassroomStore.removeRoutineFromClassroom(routine),
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  fullscreenDialog: true,
+                  builder: (_) => AsanaScreen(asanasStore.asanas[routine.asanaUniqueName]),
+                ),
+              ),
               onDurationTap: () {
                 showCupertinoModalPopup(
                   context: context,
@@ -167,13 +182,15 @@ class _ClassroomRoutineListItem extends StatelessWidget {
 
   final VoidCallback onRoutineRemove;
   final VoidCallback onDurationTap;
+  final VoidCallback onTap;
 
   final isShowReorderIcon;
 
   _ClassroomRoutineListItem({
     Key key,
-    @required this.asanaInRoutine,
+    this.onTap,
     this.isShowReorderIcon = false,
+    @required this.asanaInRoutine,
     @required this.onRoutineRemove,
     @required this.routineAsanaDuration,
     @required this.onDurationTap,
@@ -221,6 +238,9 @@ class _ClassroomRoutineListItem extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(4),
         color: Colors.grey[300],
+        image: DecorationImage(
+          image: AssetImage(ImageAssets.asanaCoverImage),
+        ),
       ),
     );
   }
@@ -250,33 +270,36 @@ class _ClassroomRoutineListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-      decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: Colors.grey[100], width: 1)),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Flexible(
-            child: Row(
-              children: [
-                _getLeadingWidget(),
-                _getAsanaImage(),
-                SizedBox(width: 5),
-                Flexible(
-                  child: Text(
-                    asanaInRoutine.title,
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+        decoration: BoxDecoration(
+          border: Border(bottom: BorderSide(color: Colors.grey[100], width: 1)),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Flexible(
+              child: Row(
+                children: [
+                  _getLeadingWidget(),
+                  _getAsanaImage(),
+                  SizedBox(width: 5),
+                  Flexible(
+                    child: Text(
+                      asanaInRoutine.title,
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          SizedBox(width: 5),
-          _getTrailingWidget(),
-        ],
+            SizedBox(width: 5),
+            _getTrailingWidget(),
+          ],
+        ),
       ),
     );
   }
@@ -285,11 +308,13 @@ class _ClassroomRoutineListItem extends StatelessWidget {
 class _AsanaListItem extends StatelessWidget {
   final AsanaModel asana;
   final VoidCallback onAsanaAdd;
+  final VoidCallback onTap;
 
   _AsanaListItem({
     Key key,
     @required this.asana,
     @required this.onAsanaAdd,
+    this.onTap,
   })  : assert(asana != null),
         assert(onAsanaAdd != null),
         super(key: key);
@@ -301,6 +326,9 @@ class _AsanaListItem extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(4),
         color: Colors.grey[300],
+        image: DecorationImage(
+          image: AssetImage(ImageAssets.asanaCoverImage),
+        ),
       ),
     );
   }
@@ -314,32 +342,35 @@ class _AsanaListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-      decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: Colors.grey[100], width: 1)),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Flexible(
-            child: Row(
-              children: [
-                _getAsanaImage(),
-                SizedBox(width: 5),
-                Flexible(
-                  child: Text(
-                    asana.title,
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+        decoration: BoxDecoration(
+          border: Border(bottom: BorderSide(color: Colors.grey[100], width: 1)),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Flexible(
+              child: Row(
+                children: [
+                  _getAsanaImage(),
+                  SizedBox(width: 5),
+                  Flexible(
+                    child: Text(
+                      asana.title,
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          SizedBox(width: 5),
-          _getTrailingWidget(context),
-        ],
+            SizedBox(width: 5),
+            _getTrailingWidget(context),
+          ],
+        ),
       ),
     );
   }

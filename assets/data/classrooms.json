@@ -3,7 +3,7 @@
     "title": "Медитация",
     "description": "Этот класс содержит всего одну асану, позу \"лотуса\" для практики медитации в неподвижном состоянии",
     "coverImage": null,
-    "timeBetweenAsanas": 10,
+    "timeBetweenAsanas": 0,
     "isPredefined": true,
     "asanasUniqueNames": [
       "lotus"

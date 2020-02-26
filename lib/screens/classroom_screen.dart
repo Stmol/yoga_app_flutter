@@ -5,13 +5,15 @@ import 'package:mobx/mobx.dart';
 import 'package:my_yoga_fl/i18n/plural.dart';
 import 'package:my_yoga_fl/models/classroom_model.dart';
 import 'package:my_yoga_fl/screens/asana_screen.dart';
-import 'package:my_yoga_fl/screens/new_classroom/step_1.dart';
+import 'package:my_yoga_fl/screens/new_classroom/new_classroom_screen.dart';
 import 'package:my_yoga_fl/screens/player/player_main_screen.dart';
 import 'package:my_yoga_fl/stores/asanas_store.dart';
 import 'package:my_yoga_fl/stores/classrooms_store.dart';
 import 'package:my_yoga_fl/stores/new_classroom_store.dart';
 import 'package:my_yoga_fl/stores/player_store.dart';
 import 'package:my_yoga_fl/styles.dart';
+import 'package:my_yoga_fl/utils/local_notification.dart';
+import 'package:my_yoga_fl/utils/log.dart';
 import 'package:my_yoga_fl/widgets/asanas_list.dart';
 import 'package:provider/provider.dart';
 
@@ -32,6 +34,33 @@ class _ClassroomScreenState extends State<ClassroomScreen> {
 
   _ClassroomScreenState(this._classroom);
 
+  void _onClassroomEditButtonTap(BuildContext context) {
+    final route = MaterialPageRoute(
+      fullscreenDialog: true,
+      builder: (_) {
+        final newClassroomStore = NewClassroomStore.withClassroom(_classroom);
+
+        when(
+          (_) => newClassroomStore.editableClassroom != _classroom,
+          () {
+            Provider.of<ClassroomsStore>(context, listen: false)
+                .updateClassroom(newClassroomStore.editableClassroom);
+            // Update ClassroomScreen widget
+            setState(() => _classroom = newClassroomStore.editableClassroom);
+          },
+          onError: (error, _) {
+            LocalNotification.error(context, inPostCallback: true);
+            Log.error(error);
+          },
+        );
+
+        return NewClassroomScreen(newClassroomStore: newClassroomStore);
+      },
+    );
+
+    Navigator.push(context, route);
+  }
+
   Widget _getEditButton(BuildContext context) {
     if (_classroom.isPredefined == true) {
       return SizedBox.shrink();
@@ -39,26 +68,7 @@ class _ClassroomScreenState extends State<ClassroomScreen> {
 
     return IconButton(
       icon: Icon(Icons.edit, color: Colors.black),
-      onPressed: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            fullscreenDialog: true,
-            builder: (_) {
-              final newClassroomStore = NewClassroomStore.withClassroom(_classroom);
-
-              when((_) => newClassroomStore.editableClassroom != _classroom, () {
-                Provider.of<ClassroomsStore>(context, listen: false)
-                    .updateClassroom(newClassroomStore.editableClassroom);
-                // Update ClassroomScreen widget
-                setState(() => _classroom = newClassroomStore.editableClassroom);
-              });
-
-              return NewClassroomStep1Screen(newClassroomStore: newClassroomStore);
-            },
-          ),
-        );
-      },
+      onPressed: () => _onClassroomEditButtonTap(context),
     );
   }
 
@@ -100,7 +110,7 @@ class _ClassroomScreenContent extends StatelessWidget {
 
   Widget _getClassroomImage() {
     if (classroom.coverImage == null) {
-      return Container();
+      return SizedBox.shrink();
     }
 
     return Container(
@@ -127,11 +137,14 @@ class _ClassroomScreenContent extends StatelessWidget {
       return SizedBox.shrink();
     }
 
-    return Text(
-      classroom.description,
-      maxLines: 5,
-      overflow: TextOverflow.ellipsis,
-      style: TextStyle(fontSize: 18, color: Colors.blueGrey),
+    return Padding(
+      padding: const EdgeInsets.only(top: HEIGHT_BETWEEN_WIDGETS),
+      child: Text(
+        classroom.description,
+        maxLines: 5,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(fontSize: 18, color: Colors.blueGrey),
+      ),
     );
   }
 
@@ -153,7 +166,6 @@ class _ClassroomScreenContent extends StatelessWidget {
       },
       child: Container(
         height: 55,
-        margin: EdgeInsets.only(bottom: HEIGHT_BETWEEN_WIDGETS),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(5),
           color: Colors.yellow[300], // TODO: Add glow effect
@@ -164,7 +176,7 @@ class _ClassroomScreenContent extends StatelessWidget {
             Icon(Icons.play_arrow),
             SizedBox(width: 5),
             Text(
-              'Начать',
+              'Start class',
               style: TextStyle(fontSize: 21, fontWeight: FontWeight.bold),
             ),
           ],
@@ -191,6 +203,7 @@ class _ClassroomScreenContent extends StatelessWidget {
               title: asana.title,
               imageUrl: asana.imageUrl,
               level: asana.level,
+              hindiTitle: asana.hindiTitle,
               onTap: () {
                 Navigator.push(context, MaterialPageRoute(builder: (context) {
                   return AsanaScreen(asana);
@@ -206,15 +219,14 @@ class _ClassroomScreenContent extends StatelessWidget {
 
   Widget _getClassroomInfo() {
     final pauseText = classroom.timeBetweenAsanas <= 0
-        ? 'без пауз'
-        : 'паузы по ${classroomTimeRounded(classroom.durationBetweenAsanas)}';
+        ? 'no breaks'
+        : 'breaks duration ${classroomTimeRounded(classroom.durationBetweenAsanas)}';
 
     return Text(
       '${asanasCount(classroom.classroomRoutines.length)}'
-      ' • $pauseText • всего ${classroomTimeRounded(classroom.totalDuration)}',
+      ' • $pauseText • total ${classroomTimeRounded(classroom.totalDuration)}',
       style: Styles.classroomInfoText,
-      maxLines: 1,
-      softWrap: false,
+      maxLines: 2,
       overflow: TextOverflow.ellipsis,
     );
   }
@@ -222,7 +234,7 @@ class _ClassroomScreenContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 20, right: 20, top: 20),
+      padding: const EdgeInsets.only(left: 20, right: 20, top: 0),
       child: NotificationListener<OverscrollIndicatorNotification>(
         // TODO Check this method for disabling Android like scroll glow
         onNotification: (OverscrollIndicatorNotification overscroll) {
@@ -234,11 +246,11 @@ class _ClassroomScreenContent extends StatelessWidget {
             SliverList(
               delegate: SliverChildListDelegate([
                 _getClassroomImage(),
+                _getClassroomDescription(),
                 Padding(
-                  padding: const EdgeInsets.only(bottom: HEIGHT_BETWEEN_WIDGETS),
-                  child: _getClassroomDescription(),
+                  padding: const EdgeInsets.symmetric(vertical: HEIGHT_BETWEEN_WIDGETS),
+                  child: _getStartButton(context),
                 ),
-                _getStartButton(context),
                 Padding(
                   padding: const EdgeInsets.only(bottom: HEIGHT_BETWEEN_WIDGETS),
                   child: _getClassroomInfo(),

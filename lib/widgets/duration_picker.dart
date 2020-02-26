@@ -92,14 +92,14 @@ class _DurationPickerState extends State<DurationPicker> {
                       children: [
                         Expanded(
                           child: FlatButton(
-                            child: Text("Отмена"),
+                            child: Text('Cancel'),
                             onPressed: () => Navigator.of(context).pop(),
                           ),
                         ),
                         SizedBox(width: 10),
                         Expanded(
                           child: OutlineButton(
-                            child: Text("Сохранить"),
+                            child: Text('Save'),
                             onPressed: isSaveButtonEnabled == false
                                 ? null
                                 : () {

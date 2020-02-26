@@ -1,6 +1,7 @@
 import 'package:built_collection/built_collection.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:my_yoga_fl/assets.dart';
 import 'package:my_yoga_fl/models/asana_model.dart';
 import 'package:my_yoga_fl/screens/asana_screen.dart';
 
@@ -31,18 +32,14 @@ class AsanasList extends StatelessWidget {
 
               return Padding(
                 padding: const EdgeInsets.only(bottom: 15),
-                child: GestureDetector(
-                  child: AsanaListItem(
-                    title: asana.title,
-                    imageUrl: asana.imageUrl,
-                    level: asana.level,
-                  ),
+                child: AsanaListItem(
+                  title: asana.title,
+                  imageUrl: asana.imageUrl,
+                  level: asana.level,
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) {
-                        return AsanaScreen(asana);
-                      }),
+                      MaterialPageRoute(builder: (context) => AsanaScreen(asana)),
                     );
                   },
                 ),
@@ -57,6 +54,7 @@ class AsanasList extends StatelessWidget {
 
 class AsanaListItem extends StatelessWidget {
   final String title;
+  final String hindiTitle;
   final String imageUrl;
   final double level;
   final Function onTap;
@@ -65,33 +63,40 @@ class AsanaListItem extends StatelessWidget {
     Key key,
     @required this.title,
     this.imageUrl,
+    this.hindiTitle,
     this.level,
     this.onTap,
   }) : super(key: key);
 
   Widget _getImage() {
-    return Container(
-      height: 80,
-      width: 80,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        color: Colors.grey[300],
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            Colors.grey[100],
-            Colors.grey[300],
-          ],
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        height: 80,
+        width: 80,
+        decoration: BoxDecoration(
+          color: Colors.grey[300],
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Colors.grey[100],
+              Colors.grey[300],
+            ],
+          ),
+        ),
+        child: Image.asset(
+          ImageAssets.asanaCoverImage,
+          fit: BoxFit.contain,
         ),
       ),
-      // child: null,
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: onTap,
       child: Container(
         height: 80,
@@ -99,11 +104,11 @@ class AsanaListItem extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _getImage(),
-            SizedBox(width: 10),
+            SizedBox(width: 12),
             Flexible(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Flexible(
                     flex: 2,
@@ -126,29 +131,28 @@ class AsanaListItem extends StatelessWidget {
                           Container(
                             child: Text(
                               '$level',
-                              style: TextStyle(color: Colors.grey[500], fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                color: Colors.grey[500],
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           )
                         ],
                       ),
                     ),
                   ),
-                  Flexible(
-                    flex: 1,
-                    child: Container(
-                      child: Text(
-                        'для начинающих',
-                        style: TextStyle(
-                          color: Color.fromRGBO(13, 92, 210, 0.9),
+                  if (hindiTitle == null)
+                    SizedBox.shrink()
+                  else
+                    Flexible(
+                      flex: 1,
+                      child: Container(
+                        child: Text(
+                          hindiTitle ?? '',
+                          style: TextStyle(color: Colors.blueGrey),
                         ),
                       ),
-                      padding: EdgeInsets.symmetric(horizontal: 5, vertical: 3),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(4),
-                        color: Color.fromRGBO(96, 159, 253, 0.3),
-                      ),
-                    ),
-                  )
+                    )
                 ],
               ),
             )

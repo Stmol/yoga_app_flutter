@@ -1,18 +1,35 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mobx/mobx.dart';
+import 'package:my_yoga_fl/assets.dart';
 import 'package:my_yoga_fl/i18n/plural.dart';
 import 'package:my_yoga_fl/models/classroom_model.dart';
 import 'package:my_yoga_fl/screens/classroom_screen.dart';
-import 'package:my_yoga_fl/screens/new_classroom/step_1.dart';
+import 'package:my_yoga_fl/screens/new_classroom/new_classroom_screen.dart';
 import 'package:my_yoga_fl/stores/classrooms_store.dart';
 import 'package:my_yoga_fl/stores/new_classroom_store.dart';
 import 'package:my_yoga_fl/styles.dart';
+import 'package:my_yoga_fl/utils/local_notification.dart';
+import 'package:my_yoga_fl/utils/log.dart';
 import 'package:my_yoga_fl/widgets/button.dart';
-import 'package:my_yoga_fl/widgets/search_field.dart';
 import 'package:provider/provider.dart';
+
+const List<String> emojiForClassroom = [
+  '🙏',
+  '😌',
+  '😬',
+  '😮',
+  '💪',
+  '✌️',
+  '👀',
+  '🐰',
+  '🐼',
+  '🐵',
+];
 
 class ClassroomsScreen extends StatelessWidget {
   static const routeName = '/classes';
@@ -34,24 +51,22 @@ class ClassroomsScreen extends StatelessWidget {
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
-          'Классы',
+          'Classes',
           style: Theme.of(context).textTheme.title,
         ),
       ),
-      body: _ClassroomsScreen(),
+      body: _ClassroomsScreenContent(),
     );
   }
 }
 
-class _ClassroomsScreen extends StatelessWidget {
+class _ClassroomsScreenContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: ListView(
         padding: const EdgeInsets.all(20),
         children: <Widget>[
-          SearchField(),
-          SizedBox(height: 15),
           _PredefinedClassesList(),
           SizedBox(height: 15),
           _ActiveClassesList(),
@@ -62,27 +77,38 @@ class _ClassroomsScreen extends StatelessWidget {
 }
 
 class _PredefinedClassesList extends StatelessWidget {
-  Widget _getListItem(String title, Color bgColor) {
+  Widget _getListItem(String title, Color bgColor, String imageAsset) {
     return Container(
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(20),
-      ),
       height: 150,
       width: 120,
       padding: EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(20),
+        image: DecorationImage(
+          image: AssetImage(imageAsset),
+          fit: BoxFit.cover,
+        ),
+      ),
       child: Align(
         alignment: Alignment.bottomLeft,
         child: Text(
           title,
           maxLines: 3,
           overflow: TextOverflow.ellipsis,
-          softWrap: true,
+          softWrap: false,
           style: GoogleFonts.pTSansCaption(
             textStyle: TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
               fontSize: 16, // TODO: Words wrapping by letter
+              shadows: [
+                Shadow(
+                  blurRadius: 6.0,
+                  color: Colors.grey[600],
+                  offset: Offset(0, 1.0),
+                )
+              ],
             ),
           ),
         ),
@@ -99,7 +125,7 @@ class _PredefinedClassesList extends StatelessWidget {
           return Observer(
             builder: (_) {
               if (store.predefinedClassrooms.isEmpty) {
-                return Container(); // TODO: Empty list
+                return SizedBox.shrink(); // TODO: Empty list
               }
 
               return ListView.builder(
@@ -109,10 +135,20 @@ class _PredefinedClassesList extends StatelessWidget {
                 itemBuilder: (context, index) {
                   final classroom = store.predefinedClassrooms[index];
 
+                  final images = <String>[
+                    ImageAssets.classroomMeditateImage,
+                    ImageAssets.classroomVitalityImage,
+                    ImageAssets.classroomMomsImage,
+                  ];
+
                   return Row(
-                    children: <Widget>[
+                    children: [
                       GestureDetector(
-                        child: _getListItem(classroom.title, Colors.amber[200]),
+                        child: _getListItem(
+                          classroom.title,
+                          Colors.amber[200],
+                          images[index],
+                        ),
                         onTap: () {
                           Navigator.push(context, MaterialPageRoute(
                             builder: (context) {
@@ -121,7 +157,7 @@ class _PredefinedClassesList extends StatelessWidget {
                           ));
                         },
                       ),
-                      SizedBox(width: 20),
+                      SizedBox(width: index == store.predefinedClassrooms.length - 1 ? 0 : 28),
                     ],
                   );
                 },
@@ -136,6 +172,8 @@ class _PredefinedClassesList extends StatelessWidget {
 
 class _ActiveClassesList extends StatelessWidget {
   Widget _classroomListItem(ClassroomModel classroom, BuildContext context) {
+    final rand = Random();
+
     return Container(
       padding: EdgeInsets.all(8),
       decoration: BoxDecoration(
@@ -150,7 +188,19 @@ class _ActiveClassesList extends StatelessWidget {
             height: 60,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(4),
-              color: Colors.grey[200],
+              gradient: LinearGradient(
+//                colors: [Color(0x99FF7D14), Color(0x99F94327)],
+                colors: [Color(0x99E1DADA), Color(0x99BDCAD9)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+            child: Align(
+              alignment: Alignment.center,
+              child: Text(
+                emojiForClassroom[rand.nextInt(9)],
+                textScaleFactor: 1.6,
+              ),
             ),
           ),
           SizedBox(width: 6),
@@ -182,84 +232,101 @@ class _ActiveClassesList extends StatelessWidget {
     );
   }
 
+  void _onCreateButtonTap(BuildContext context) {
+    final route = MaterialPageRoute(
+      // TODO: What about insane rebuilding widgets below?
+      fullscreenDialog: true,
+      builder: (context) {
+        final newClassroomStore = NewClassroomStore();
+
+        when(
+          (_) => newClassroomStore.editableClassroom != null,
+          () {
+            Provider.of<ClassroomsStore>(context, listen: false)
+                .addClassroom(newClassroomStore.editableClassroom);
+
+            LocalNotification.success(
+              context,
+              message: 'Class was created',
+              // TODO: Its possible to do in promise callback of Navigator push method
+              inPostCallback: true,
+            );
+          },
+          onError: (error, _) {
+            LocalNotification.error(context, inPostCallback: true);
+            Log.error(error);
+          },
+        );
+
+        return NewClassroomScreen(newClassroomStore: newClassroomStore);
+      },
+    );
+
+    Navigator.push(context, route);
+    //.then((v) => print(v)); TODO: Check this method to pass a result
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
-        Consumer<ClassroomsStore>(
-          builder: (_, store, __) {
-            return Observer(
-              builder: (_) => ListView.builder(
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                itemCount: store.usersClassrooms.length,
-                itemBuilder: (_, index) {
-                  final classroom = store.usersClassrooms[index]; // FIXME: Possible out of a range
+        Observer(
+          builder: (_) {
+            final store = Provider.of<ClassroomsStore>(context, listen: false);
+            final reversedClassrooms = store.usersClassrooms.reversed.toList(growable: false);
 
-                  return GestureDetector(
-                    child: Container(
-                      padding: EdgeInsets.only(bottom: 10),
-                      child: Dismissible(
-                        key: UniqueKey(),
-                        direction: DismissDirection.endToStart,
-                        onDismissed: (_) {
-                          // TODO: Add confirmDismiss with popup
-                          store.deleteClassroom(classroom);
-                        },
-                        background: Container(
-                          padding: EdgeInsets.only(right: 20),
-                          margin: EdgeInsets.symmetric(vertical: 8),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.only(
-                              topRight: Radius.circular(8),
-                              bottomRight: Radius.circular(8),
-                            ),
-                            color: Colors.red[200],
+            return ListView.builder(
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              itemCount: reversedClassrooms.length,
+              itemBuilder: (_, index) {
+                final classroom = reversedClassrooms[index]; // FIXME: Possible out of a range
+
+                return GestureDetector(
+                  child: Container(
+                    padding: EdgeInsets.only(bottom: 10),
+                    child: Dismissible(
+                      key: UniqueKey(),
+                      direction: DismissDirection.endToStart,
+                      onDismissed: (_) {
+                        // TODO: Add confirmDismiss with popup
+                        store.deleteClassroom(classroom);
+                      },
+                      background: Container(
+                        padding: EdgeInsets.only(right: 20),
+                        margin: EdgeInsets.symmetric(vertical: 8),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.only(
+                            topRight: Radius.circular(8),
+                            bottomRight: Radius.circular(8),
                           ),
-                          child: Align(
-                            alignment: Alignment.centerRight,
-                            child: Icon(Icons.delete, color: Colors.white),
-                          ),
+                          color: Colors.red[200],
                         ),
-                        child: _classroomListItem(classroom, context),
+                        child: Align(
+                          alignment: Alignment.centerRight,
+                          child: Icon(Icons.delete, color: Colors.white),
+                        ),
                       ),
+                      child: _classroomListItem(classroom, context),
                     ),
-                    onTap: () {
-                      Navigator.push(context, MaterialPageRoute(
-                        builder: (context) {
-                          return ClassroomScreen(classroom: classroom);
-                        },
-                      ));
-                    },
-                  );
-                },
-              ),
+                  ),
+                  onTap: () {
+                    Navigator.push(context, MaterialPageRoute(
+                      builder: (context) {
+                        return ClassroomScreen(classroom: classroom);
+                      },
+                    ));
+                  },
+                );
+              },
             );
           },
         ),
         Container(
           width: double.infinity,
           child: Button(
-            'Создать свой класс',
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  // TODO: What about insane rebuilding widgets below?
-                  fullscreenDialog: true,
-                  builder: (context) {
-                    final newClassroomStore = NewClassroomStore();
-
-                    when((_) => newClassroomStore.editableClassroom != null, () {
-                      Provider.of<ClassroomsStore>(context, listen: false)
-                          .addClassroom(newClassroomStore.editableClassroom);
-                    });
-
-                    return NewClassroomStep1Screen(newClassroomStore: newClassroomStore);
-                  },
-                ),
-              );
-            },
+            'Create new class',
+            onTap: () => _onCreateButtonTap(context),
           ),
         ),
       ],
