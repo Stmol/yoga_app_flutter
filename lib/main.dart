@@ -18,7 +18,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized(); // TODO: What the heck?
+  WidgetsFlutterBinding.ensureInitialized();
 
   // TODO: Find to best place for init SP
   PackageInfo packageInfo = await PackageInfo.fromPlatform();
@@ -119,7 +119,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _showNotification(BuildContext context, {bool isError = false}) {
     if (isError == false) {
-      LocalNotification.success(context, message: 'Данные приложения сброшены');
+      LocalNotification.success(context, message: 'Data was flushed successful');
     } else {
       LocalNotification.error(context);
     }
